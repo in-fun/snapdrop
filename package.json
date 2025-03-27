@@ -13,7 +13,7 @@
   "dependencies": {
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
-    "ua-parser-js": "^1.0.37",
+    "ua-parser-js": "^2.0.3",
     "unique-names-generator": "^4.3.0",
     "ws": "^8.16.0"
   },
