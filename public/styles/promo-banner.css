@@ -1,0 +1,92 @@
+/* Styles for the promotional banner */
+.promo-banner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 16px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    font-size: 14px;
+}
+
+.promo-banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    gap: 12px;
+    max-width: 1200px;
+    text-align: center;
+}
+
+.promo-banner-text {
+    flex-grow: 1;
+}
+
+.promo-banner-cta {
+    white-space: nowrap;
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.promo-banner-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 12px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.promo-banner-close:hover {
+    opacity: 1;
+}
+
+/* Light theme styles */
+.promo-banner.light-theme {
+    background-color: #f0f4ff;
+    color: #333;
+    border-bottom: 1px solid #e0e0ff;
+}
+
+.promo-banner.light-theme .promo-banner-cta {
+    background-color: #3367d6;
+    color: white;
+}
+
+.promo-banner.light-theme .promo-banner-cta:hover {
+    background-color: #2a58c3;
+}
+
+/* Dark theme styles */
+.promo-banner.dark-theme {
+    background-color: #262b3d;
+    color: #e8eaed;
+    border-bottom: 1px solid #3a3f55;
+}
+
+.promo-banner.dark-theme .promo-banner-cta {
+    background-color: #4285f4;
+    color: white;
+}
+
+.promo-banner.dark-theme .promo-banner-cta:hover {
+    background-color: #5c9aff;
+}
+
+/* Hidden state */
+.promo-banner.hidden {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+    border: none;
+} 
