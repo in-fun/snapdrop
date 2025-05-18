@@ -1,37 +1,49 @@
 /* Styles for the promotional banner */
 .promo-banner {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 8px 16px;
     width: 100%;
-    box-sizing: border-box;
+    background-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     transition: all 0.3s ease;
-    z-index: 1000;
     font-size: 14px;
+    margin: 0 0 8px 0;
+    position: relative;
+    z-index: 10;
 }
 
 .promo-banner-content {
     display: flex;
     align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-    gap: 12px;
+    padding: 10px 16px;
+    width: 100%;
     max-width: 1200px;
-    text-align: center;
+    margin: 0 auto;
+    flex-wrap: wrap;
 }
 
 .promo-banner-text {
-    flex-grow: 1;
+    flex: 1;
+    margin-right: 16px;
+    line-height: 1.4;
+    color: white;
+    min-width: 200px;
 }
 
 .promo-banner-cta {
     white-space: nowrap;
     padding: 6px 12px;
-    border-radius: 4px;
+    border-radius: 6px;
     text-decoration: none;
     font-weight: 500;
+    margin: 4px 16px 4px 0;
     transition: all 0.2s ease;
+    background-color: white;
+    color: var(--primary-color);
+}
+
+.promo-banner-cta:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    /* transform: translateY(-1px); */
 }
 
 .promo-banner-close {
@@ -42,51 +54,62 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-left: 12px;
-    opacity: 0.7;
+    border-radius: 50%;
+    opacity: 0.8;
     transition: opacity 0.2s ease;
+    color: white;
 }
 
 .promo-banner-close:hover {
     opacity: 1;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Light theme styles */
 .promo-banner.light-theme {
-    background-color: #f0f4ff;
-    color: #333;
-    border-bottom: 1px solid #e0e0ff;
-}
-
-.promo-banner.light-theme .promo-banner-cta {
-    background-color: #3367d6;
-    color: white;
-}
-
-.promo-banner.light-theme .promo-banner-cta:hover {
-    background-color: #2a58c3;
+    background-color: #4285f4;
+    background-image: linear-gradient(135deg, #4285f4, #5c9aff);
 }
 
 /* Dark theme styles */
 .promo-banner.dark-theme {
-    background-color: #262b3d;
-    color: #e8eaed;
-    border-bottom: 1px solid #3a3f55;
-}
-
-.promo-banner.dark-theme .promo-banner-cta {
     background-color: #4285f4;
-    color: white;
-}
-
-.promo-banner.dark-theme .promo-banner-cta:hover {
-    background-color: #5c9aff;
+    background-image: linear-gradient(135deg, #4285f4, #3367d6);
 }
 
 /* Hidden state */
 .promo-banner.hidden {
-    max-height: 0;
-    padding: 0;
-    overflow: hidden;
-    border: none;
+    display: none;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .promo-banner-content {
+        padding: 10px 12px;
+    }
+    
+    .promo-banner-text {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 600px) {
+    .promo-banner-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .promo-banner-text {
+        margin-bottom: 8px;
+    }
+    
+    .promo-banner-cta {
+        margin: 0 auto 0 0;
+    }
+    
+    .promo-banner-close {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+    }
 } 
