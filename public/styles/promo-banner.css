@@ -5,7 +5,7 @@
     background-color: var(--primary-color);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     transition: all 0.3s ease;
-    font-size: 14px;
+    font-size: 1.125rem;
     margin: 0 0 8px 0;
     position: relative;
     z-index: 10;
@@ -23,18 +23,20 @@
 
 .promo-banner-text {
     flex: 1;
-    margin-right: 16px;
-    line-height: 1.4;
+    margin-right: 1rem;
+    line-height: 1.5;
     color: white;
     min-width: 200px;
+    font-weight: 500;
 }
 
 .promo-banner-cta {
     white-space: nowrap;
-    padding: 6px 12px;
+    padding: 8px 16px;
     border-radius: 6px;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 1rem;
     margin: 4px 16px 4px 0;
     transition: all 0.2s ease;
     background-color: white;
@@ -67,14 +69,14 @@
 
 /* Light theme styles */
 .promo-banner.light-theme {
-    background-color: #4285f4;
-    background-image: linear-gradient(135deg, #4285f4, #5c9aff);
+    background-color: #6366f1;
+    background-image: linear-gradient(135deg, #6366f1, #8b5cf6);
 }
 
 /* Dark theme styles */
 .promo-banner.dark-theme {
-    background-color: #4285f4;
-    background-image: linear-gradient(135deg, #4285f4, #3367d6);
+    background-color: #4f46e5;
+    background-image: linear-gradient(135deg, #4f46e5, #7c3aed);
 }
 
 /* Hidden state */
@@ -87,26 +89,27 @@
     .promo-banner-content {
         padding: 10px 12px;
     }
-    
+
     .promo-banner-text {
-        font-size: 13px;
+        font-size: 1rem;
     }
 }
 
 @media (max-width: 600px) {
     .promo-banner-content {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
+        text-align: center;
     }
-    
+
     .promo-banner-text {
-        margin-bottom: 8px;
+        margin-bottom: 0.5rem;
     }
-    
+
     .promo-banner-cta {
-        margin: 0 auto 0 0;
+        margin: 0;
     }
-    
+
     .promo-banner-close {
         position: absolute;
         top: 8px;
