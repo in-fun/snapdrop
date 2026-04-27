@@ -14,7 +14,8 @@
 .promo-banner-content {
     display: flex;
     align-items: center;
-    padding: 10px 16px;
+    justify-content: center;
+    padding: 10px 40px;
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
@@ -22,12 +23,12 @@
 }
 
 .promo-banner-text {
-    flex: 1;
     margin-right: 1rem;
     line-height: 1.5;
     color: white;
     min-width: 200px;
     font-weight: 500;
+    text-align: center;
 }
 
 .promo-banner-cta {
@@ -37,7 +38,7 @@
     text-decoration: none;
     font-weight: 600;
     font-size: 1rem;
-    margin: 4px 16px 4px 0;
+    margin: 4px 0;
     transition: all 0.2s ease;
     background-color: white;
     color: var(--primary-color);
@@ -49,6 +50,10 @@
 }
 
 .promo-banner-close {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
@@ -111,8 +116,8 @@
     }
 
     .promo-banner-close {
-        position: absolute;
         top: 8px;
         right: 8px;
+        transform: none;
     }
 } 
