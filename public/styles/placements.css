@@ -1,0 +1,120 @@
+/* Advertising placements.
+ *
+ * Named for what it styles rather than for advertising, and deliberately not
+ * `ads.css`: this file is same-origin and sits in the service worker's atomic
+ * precache set, where one blocked entry rejects the whole `cache.addAll()` and
+ * costs the PWA its offline support. See the note at the top of
+ * scripts/placements.js - the ad network request and the `ad-*` ids stay blockable.
+ *
+ * Placements are siblings of #center in the body flex column, never descendants:
+ * #center scrolls internally, and a placement inside it would scroll out of view.
+ *
+ * Every dimension here is fixed and reserved before the fade-in sequence. The
+ * document does not scroll, so a shift after load moves the drop target rather
+ * than merely reflowing a page.
+ */
+
+.ad-placement {
+    display: none;
+
+    /* Flex items shrink by default. Without this the column silently compresses
+     * placements once header + placements + footer approach the viewport height,
+     * breaking every reserved dimension below. */
+    flex: 0 0 auto;
+
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+
+    position: relative;
+    /* At or below #center and footer (2). Header is 20, overlays 32 and 40, so
+     * every dialog renders above a placement. */
+    z-index: 1;
+
+    box-sizing: border-box;
+    /* Backstop for an in-flow creative that renders larger than its declared unit.
+     * It does not clip position: fixed formats - which is why Auto ads, whose
+     * anchor and vignette units are fixed, must stay off for this site. */
+    overflow: hidden;
+}
+
+.ad-label {
+    display: block;
+    height: 14px;
+    line-height: 14px;
+    margin: 0 0 2px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-color);
+    user-select: none;
+    pointer-events: none;
+
+    /* The label is empty until Localization translates the page, which happens
+     * after reserve() has already revealed the placement. Fading on :empty means
+     * the text never pops in against an otherwise blank first paint - the box
+     * itself is transparent, so nothing else is visible until then. Geometry is
+     * final throughout; only opacity changes. */
+    opacity: 0;
+    transition: opacity 300ms;
+}
+
+.ad-label:not(:empty) {
+    opacity: 0.45;
+}
+
+/* Chrome follows the cascade rather than a MutationObserver: ThemeUI toggles
+ * `dark-theme` on body, which descendant selectors already track. Placements
+ * carry no background of their own, so dark mode gains no bright rectangle. */
+body.dark-theme .ad-label:not(:empty) {
+    opacity: 0.55;
+}
+
+/* While any drag is in progress the placements leave hit testing entirely, so a
+ * file released over one reaches the window-level drop handler instead of the
+ * cross-origin iframe - which would navigate the tab away and destroy the session. */
+body.ad-drag-active .ad-placement {
+    pointer-events: none;
+}
+
+/* Container height is the 14px label plus its 2px margin plus the unit height.
+ * These numbers are tied to `width`/`height` in AD_CONFIG (scripts/placements.js),
+ * which is what reserve() applies to the <ins>. Change one, change all three. */
+#ad-top {
+    width: 320px;
+    height: 66px;   /* 16 + 50 */
+    /* Clears the header control row so proximity cannot produce accidental clicks. */
+    margin: 12px auto 4px;
+}
+
+#ad-bottom {
+    width: 728px;
+    height: 106px;  /* 16 + 90 */
+    margin: 4px auto 8px;
+}
+
+/* The reveal is gated on the same viewport conditions AdManager evaluates. These
+ * condition strings are byte-identical to `viewportQuery` in AD_CONFIG and are
+ * passed to matchMedia verbatim - no `screen and` prefix, precisely so the two
+ * cannot drift. A disagreement would either clip an ad or request one nobody
+ * can see. */
+@media (min-width: 320px) and (min-height: 480px) {
+    #ad-top.ad-placement-visible {
+        display: flex;
+    }
+}
+
+@media (min-width: 1024px) and (min-height: 800px) {
+    #ad-bottom.ad-placement-visible {
+        display: flex;
+    }
+}
+
+/* Those conditions carry no media type, so they also match `print`. Nobody wants
+ * an ad on a printed page. */
+@media print {
+    .ad-placement {
+        display: none !important;
+    }
+}

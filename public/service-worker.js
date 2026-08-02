@@ -1,4 +1,7 @@
-const cacheVersion = 'v1.11.2';
+// Fork-local shell revision on an upstream base. `-sd.N` avoids colliding with
+// upstream's eventual v1.12.0 and with v1.11.3, already claimed on feat/ad-banner.
+// Only contract is uniqueness; package.json tracks upstream release lineage.
+const cacheVersion = 'v1.11.2-sd.1';
 const cacheTitle = `pairdrop-cache-${cacheVersion}`;
 const relativePathsToCache = [
     './',
@@ -6,6 +9,8 @@ const relativePathsToCache = [
     'manifest.json',
     'styles/styles-main.css',
     'styles/styles-deferred.css',
+    'styles/placements.css',
+    'scripts/placements.js',
     'scripts/browser-tabs-connector.js',
     'scripts/localization.js',
     'scripts/main.js',
@@ -65,7 +70,10 @@ const relativePathsToCache = [
     'lang/zh-TW.json'
 ];
 const relativePathsNotToCache = [
-    'config'
+    'config',
+    // Crawled by ad networks, never fetched by the app. Kept out of the precache
+    // and out of the runtime cache so no stale publisher declaration is served.
+    'ads.txt'
 ]
 
 self.addEventListener('install', function(event) {

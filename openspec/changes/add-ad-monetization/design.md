@@ -71,7 +71,9 @@ These findings were verified on 2026-08-02 and are the external constraints the 
 
 ### Load the AdSense tag out of band, never through `deferredScripts`
 
-`ad-manager.js` ships as a fifth `<script defer>` in `index.html` — same-origin and precached, so it always loads. It injects the AdSense tag itself and **awaits nothing**; no application promise depends on the result. The injection outcome is observed only through each placement's own state machine.
+`placements.js` ships as a fifth `<script defer>` in `index.html` — same-origin and precached, so it always loads. It injects the AdSense tag itself and **awaits nothing**; no application promise depends on the result. The injection outcome is observed only through each placement's own state machine.
+
+Construction is guarded (`typeof AdManager === 'function'`, falling back to a no-op stub) and `reserve()` and `load()` each contain their own exceptions. Both run inside `PairDrop`'s constructor chain, where an escaping `ReferenceError` or throw would prevent `initialize()` from ever being called and leave `header`, `#center` and `footer` at `opacity: 0` — a blank page caused by an ad module. "Never blocks startup" has to survive the module itself being absent, not just the network being blocked.
 
 *Alternatives considered.* Adding the AdSense URL to `deferredScripts` is the one-line option, disqualified by the non-resolving error path above. Fixing `loadAndApplyScript` to resolve in its catch block is a genuine bug fix, but it modifies shared load-order machinery for an ad's benefit, and would still couple `hydrate()` timing to a third-party network round trip. Deliberately left alone — it deserves its own change.
 
@@ -104,15 +106,19 @@ Placements declare exact dimensions in CSS and use fixed-size units — 320×50 
 | `bottom` placement below 1024px width or 800px height | Two placements need room the fixed chrome does not leave on phones and tablets. |
 | Per-placement or global `enabled: false` | Kill switch. |
 
-Anything not positively cleared stays suppressed. There is precedent for display-mode gating in the codebase already — `@media all and (display-mode: standalone)` at [styles-main.css:912](public/styles/styles-main.css#L912), and the install-button check at [main.js:84](public/scripts/main.js#L84).
+Anything not positively cleared stays suppressed. A suppressed placement is **removed from the DOM** rather than left at `display: none` — a stricter form of the same guarantee, adopted during implementation for a reason the original design missed: `adsbygoogle.push({})` carries no reference to the element it fills, binding instead to the next unrequested `<ins class="adsbygoogle">` in document order. A suppressed `top` left in the DOM would therefore capture the request intended for `bottom`, rendering an ad inside a hidden container — a paid impression nobody can see. Removal also makes the disabled build byte-for-byte identical in layout to the pre-change one.
+
+There is precedent for display-mode gating in the codebase already — `@media all and (display-mode: standalone)` at [styles-main.css:912](public/styles/styles-main.css#L912), and the install-button check at [main.js:84](public/scripts/main.js#L84).
 
 Suppression is decided once per page load and never re-evaluated into a more permissive state. A viewport change that crosses a threshold hides a rendered placement and returns its space, but never reveals a suppressed one and never triggers a request. Revealing on resize would produce a mid-session ad request indistinguishable from refresh.
 
 ### Placements become transparent to drag via `pointer-events: none`
 
-`AdManager` listens on `window` for `dragenter` / `dragover` and adds a class setting `pointer-events: none` on every placement container; `drop`, `dragend`, and a ~150ms idle timer after the last `dragover` remove it.
+`AdManager` listens on `window` for `dragenter` / `dragover` and adds a class setting `pointer-events: none` on every placement container; `drop`, `dragend`, and a 500ms idle timer after the last `dragover` remove it.
 
 *Rationale.* `pointer-events: none` removes the iframe from hit testing entirely, so the drop lands on the element beneath and reaches the existing `window` handler unchanged. It is the only mechanism available: a cross-origin iframe's internal drop handling cannot be intercepted from the parent, and `preventDefault` on the parent never fires because the event never reaches the parent. The idle timer is required because `dragleave` on `window` is unreliable when the pointer crosses between elements — without it, an abandoned drag would leave ads permanently unclickable.
+
+*Revised during implementation: 150ms → 500ms.* The [drag-and-drop processing model](https://html.spec.whatwg.org/multipage/dnd.html#drag-and-drop-processing-model) runs its iteration "every 350ms or when the user moves the pointer", so a stationary pointer mid-drag can leave a gap of up to 350ms between `dragover` events. A 150ms idle timer expires inside that gap, making placements hit-testable again while the drag is still in progress — the exact failure the mechanism exists to prevent, and one that only shows up when the user pauses over a placement before releasing. 500ms clears the interval with margin. The cost is that an abandoned drag leaves ads unclickable for 500ms rather than 150ms, which is not user-visible.
 
 *Alternative considered.* A transparent shield element overlaid on `dragenter` also works, but adds a DOM node and a stacking-context question next to `#center`'s layers for no benefit over a class toggle.
 
@@ -128,11 +134,23 @@ AdSense writes `data-ad-status="filled"` or `"unfilled"` onto the `<ins>` elemen
 
 *Rationale for the ordering.* `data-ad-status` is a stable, widely relied-upon signal but is not formally documented by Google, so it may change without notice. The timeout is not merely the blocked-tag path — it is what makes collapse correct even if the attribute disappears entirely. Treat the observer as the fast path and the timeout as the guarantee.
 
+*Three refinements from implementation.* The 5s timeout only exists once a request has been made, so a placement that reserved space but was never requested — `initialize()` has no `.catch()` and can reject before `hydrate()` runs — would hold its space for the whole session. A second, much looser watchdog (60s from reserve, cancelled by the request) bounds that case. It has to be generous rather than tidy: `load()` sits behind `loadDeferredAssets()`, which fetches ~1.6MB uncompressed — `heic2any.min.js` alone is 1.3MB — so a first visit on a slow connection can take tens of seconds to reach it, and a watchdog that fires first retires the placements before any tag is injected, costing the ad outright. The case it bounds is one where `hydrate()` never runs at all, where the application is broken regardless; that asymmetry is why it errs long. Second, the observer stays connected after a fill, because a placement that reports `filled` and later `unfilled` must still give its space back. Third, collapse **detaches** the placement rather than hiding it: a response arriving after the deadline would otherwise render a creative into a hidden container — a billed impression nobody can see.
+
 *Trade-off, stated plainly.* Reserve-then-collapse means the filled path — the common one — has no layout shift, while blocked and no-fill users get exactly one reflow that returns space to `#center`. Holding the reserved gap open forever would have no shift at all, but would permanently spend contested vertical space on users who will never see an ad. In a shell where that space competes with the peer canvas, giving it back is worth one early reflow.
+
+### Client asset filenames carry no ad token
+
+The module is `scripts/placements.js` and its stylesheet `styles/placements.css`, not `ad-manager.js` and `ads.css`. Added during implementation, and the only reason it matters is the service worker: `install` calls `cache.addAll(relativePathsToCache)`, which is **atomic**. One rejected request rejects the whole promise, nothing is cached, `skipWaiting()` never runs, and the visitor keeps the old shell against new markup with no offline support at all. Filter lists match same-origin paths containing `ad-manager` or `ads.css`, so the original names would have put two blocker-bait entries inside that atomic set and handed a large share of traffic a broken PWA — a far worse outcome than a missing ad.
+
+*This is not ad-block evasion, and the line matters.* The tag request to `pagead2.googlesyndication.com`, the `adsbygoogle` class, and the `ad-top` / `ad-bottom` element ids are all left intact and blockable. A blocker still removes every ad, and cosmetic hiding of `#ad-top` collapses the container exactly as no-fill does. What the rename protects is the application shell, not the advertising.
+
+### Auto ads must be off, and no code here can enforce it
+
+`adsbygoogle.js?client=…` is simultaneously the ad-unit tag and the Auto ads tag. With Auto ads switched on for the site, Google injects its own units — including anchor and vignette formats that `position: fixed` and therefore escape the container's `overflow: hidden` — none of which pass through the request guard or the placement count. Auto ads is already a Non-Goal above; what implementation established is that the Non-Goal rests entirely on a dashboard toggle no reader of this repository can see. It is therefore a prerequisite task and a verification step rather than an assumption.
 
 ### Configuration is a committed constant
 
-Publisher ID and slot IDs live in a `const` at the top of `ad-manager.js`, and `ads.txt` declares the same publisher account.
+Publisher ID and slot IDs live in a `const` at the top of `placements.js`, and `ads.txt` declares the same publisher account.
 
 *Rationale.* This fork maintains its own repository and deployment; upstream's convention of keeping deployment identifiers untracked does not apply. Publisher IDs are public by construction — they appear in served page source and in a file whose entire purpose is to be crawled. A runtime-injection scheme (`window.AD_CONFIG`, git-ignored config, example template) would add three files and a deployment step to hide a value that is not secret. `ads.txt` must **not** join `relativePathsToCache`: it is crawled, never fetched by the app, and precaching it only risks serving a stale copy.
 
@@ -168,6 +186,7 @@ Both carry a localized "Advertisement" label. Labelling is optional under the [a
 |---|---|
 | Ad script hangs `hydrate()` and bricks the app for ad-block users | Tag injected out of band and never awaited; `deferredScripts` untouched. The single most important property of this design. |
 | File dropped on an ad iframe navigates the tab away mid-session | `pointer-events: none` on placements during any active drag, with an idle timer so an abandoned drag cannot leave ads permanently dead |
+| **Residual, unclosable:** a drag entering the viewport *directly* over the ad iframe delivers its first `dragenter` to the iframe's own document, so the parent never learns a drag started and never applies `pointer-events: none` | Cannot be closed from the parent for a cross-origin iframe. Narrowed structurally rather than fixed: placements are centred with margins and sit between the header and `#center`, so a drag arriving from any window edge crosses application chrome first and arms the class before reaching the ad. Only a drag originating over the ad's own screen region — a source window overlapping it — can hit the gap |
 | Layout shift moves the drop target under the cursor | Fixed pixel units, dimensions reserved before fade-in, `flex: 0 0 auto`, `overflow: hidden`; shift confined to the no-fill collapse |
 | Flex shrink silently compresses a placement below its reserved size | `flex: 0 0 auto` on every placement container; verified at the smallest supported viewport |
 | Stale service worker keeps returning visitors on the old shell | `cacheVersion` change is mandatory whenever `public/` gains files; returning visitors pick up the new shell on next activation, so expect one session of lag |

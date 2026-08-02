@@ -38,6 +38,8 @@
     <link rel="preload" href="lang/en.json" as="fetch">
     <link rel="preload" href="fonts/OpenSans/static/OpenSans-Medium.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" type="text/css" href="styles/styles-main.css">
+    <!-- Not deferred: placements reserve their dimensions before the fade-in sequence. -->
+    <link rel="stylesheet" type="text/css" href="styles/placements.css">
     <link rel="manifest" href="manifest.json">
 </head>
 
@@ -103,6 +105,14 @@
             </svg>
         </div>
     </header>
+    <!-- Ad placement: top. Sibling of #center, never a descendant - #center scrolls. -->
+    <aside id="ad-top" class="ad-placement" hidden>
+        <span class="ad-label" data-i18n-key="advertisement" data-i18n-attrs="text"></span>
+        <ins class="adsbygoogle"
+             style="display:inline-block;width:320px;height:50px"
+             data-ad-client="ca-pub-7669832766470834"
+             data-ad-slot="0000000000"></ins>
+    </aside>
     <!-- Center -->
     <div id="center" class="opacity-0">
         <!-- Peers -->
@@ -146,6 +156,14 @@
             <span data-i18n-key="footer.webrtc" data-i18n-attrs="text"></span>
         </div>
     </div>
+    <!-- Ad placement: bottom. Sibling of #center, never a descendant - #center scrolls. -->
+    <aside id="ad-bottom" class="ad-placement" hidden>
+        <span class="ad-label" data-i18n-key="advertisement" data-i18n-attrs="text"></span>
+        <ins class="adsbygoogle"
+             style="display:inline-block;width:728px;height:90px"
+             data-ad-client="ca-pub-7669832766470834"
+             data-ad-slot="0000000000"></ins>
+    </aside>
     <!-- Footer -->
     <footer class="column opacity-0">
         <svg class="icon logo">
@@ -855,6 +873,7 @@
     <script src="scripts/localization.js" defer></script>
     <script src="scripts/persistent-storage.js" defer></script>
     <script src="scripts/ui-main.js" defer></script>
+    <script src="scripts/placements.js" defer></script>
     <script src="scripts/main.js" defer></script>
     <!-- Sounds -->
     <audio id="blop" autobuffer="true">

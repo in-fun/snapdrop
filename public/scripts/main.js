@@ -32,6 +32,18 @@ class PairDrop {
         this.centerUI = new CenterUI();
         this.footerUI = new FooterUI();
 
+        // Reserve ad placements before the fade-in sequence so their geometry is
+        // final before anything is visible. Synchronous and local-only.
+        //
+        // Guarded: scripts/placements.js is same-origin and precached, but a filter
+        // list or a partial deploy can still take it out. An unguarded ReferenceError
+        // here would throw before initialize() is ever called, leaving header, #center
+        // and footer at opacity 0 forever - a blank page, caused by an ad module.
+        this.adManager = typeof AdManager === 'function'
+            ? new AdManager()
+            : { reserve: () => {}, load: () => {} };
+        this.adManager.reserve();
+
         this.initialize()
             .then(_ => {
                 console.log("Initialization completed.");
@@ -186,6 +198,11 @@ class PairDrop {
         this.broadCast = new BrowserTabsConnector();
         this.server = new ServerConnection();
         this.peers = new PeersManager(this.server);
+
+        // Deliberately not awaited and deliberately not routed through
+        // deferredScripts: no application step may be sequenced behind a
+        // third-party request that is blocked for a large share of traffic.
+        this.adManager.load();
     }
 
     async evaluateUrlParams() {

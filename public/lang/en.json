@@ -180,5 +180,6 @@
         "waiting": "Waiting…",
         "processing": "Processing…",
         "transferring": "Transferring…"
-    }
+    },
+    "advertisement": "Advertisement"
 }

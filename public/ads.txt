@@ -1,0 +1,6 @@
+# Authorized Digital Sellers for snap-drop.net
+# https://support.google.com/adsense/answer/12171612
+#
+# Crawled by ad networks, never fetched by the app: deliberately excluded from
+# relativePathsToCache in service-worker.js so no stale copy is ever served.
+google.com, pub-7669832766470834, DIRECT, f08c47fec0942fa0
