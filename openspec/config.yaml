@@ -1,20 +1,57 @@
 schema: spec-driven
 
-# Project context (optional)
+# Project context
 # This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  PairDrop/Snapdrop fork: a peer-to-peer file transfer PWA built on WebRTC.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Stack — vanilla JavaScript, no build step, no framework, no bundler:
+    - public/ is the static client. Scripts are plain `<script defer>` globals (main.js, network.js,
+      ui.js, ui-main.js, util.js, localization.js, persistent-storage.js), class-based, wired
+      together through the static `Events` bus in ui-main.js. Styles live in
+      public/styles/styles-main.css and styles-deferred.css.
+    - server/ is Node.js (>=15) ES modules: an Express static host plus a `ws` signaling server.
+    - Runtime dependencies are kept minimal and bumped by Dependabot, not by hand.
+
+  Invariants:
+    - The server only relays signaling. File contents never pass through it — transfers are
+      browser-encrypted WebRTC, peer-to-peer, falling back to TURN only when NAT requires it.
+    - public/service-worker.js precaches the app shell. Adding, renaming, or removing any asset
+      under public/ means updating relativePathsToCache and bumping cacheVersion.
+    - User-facing strings are localized: keys in public/lang/en.json, referenced from markup via
+      data-i18n-key / data-i18n-attrs. `en` is the default locale and the fallback for 36 others.
+    - Targets current mobile and desktop browsers and runs installed as a PWA; feature-detect
+      rather than assume support.
+
+  Working conventions:
+    - No test runner, linter, or CI checks on app code. Verification is manual and in-browser, and
+      most transfer behavior needs two devices on the same network to observe.
+    - Conventional commits. Ships as a Docker image and deploys to fly.io.
+    - CONTRIBUTING.md sets the bar: radical simplicity, one narrow use case (instant file transfer),
+      stability first, and the main user flow must never be obstructed.
+
+# Per-artifact rules
+rules:
+  proposal:
+    - State the problem with evidence (observed behavior, data, prior art); don't invent requirements or speculate on solutions
+    - Scan prior art only enough to confirm the problem isn't already solved and to scope it — defer solution/library comparison to design
+    - Get the Capabilities contract right (new vs modified, exact kebab-case names); keep to the "why/what" and push the "how" to design
+    - Weigh the change against the simplicity mandate — name the user flow it serves and the flows it must not obstruct
+  design:
+    - Research extensively online for architectural patterns, library comparisons, and proven approaches before making design decisions
+    - Follow industry-standard patterns and best practices; justify deviations explicitly
+    - Prefer platform APIs over dependencies; a new dependency must work without a build step and earn its bytes on mobile
+    - Extend the existing client patterns (classes plus the Events bus) instead of introducing a second style
+    - Strive for elegant, cohesive design — every component should have a clear purpose and minimal surface area
+    - Keep the design internally consistent and coherent with the proposal and specs — no contradictions, every decision traceable to a goal or requirement
+  specs:
+    - Reference the web standards that govern the domain (WebRTC, ICE/STUN/TURN, Service Worker, IndexedDB, Web Share Target)
+    - Specify both ends of anything crossing the wire — message shape, sender behavior, receiver behavior
+    - Specifications should reflect deep thinking — cover edge cases, failure modes, and invariants (peer drops mid-transfer, backgrounded tab, network switch, denied permissions)
+  tasks:
+    - Tasks must be unambiguous and gap-free — every requirement and design decision is covered, each task is actionable and verifiable, so the change is ready to implement without further clarification
+    - Each task should follow best practices for implementation quality
+    - Flag tasks that require online research as a prerequisite step
+    - There is no test runner — give each task explicit manual verification steps (browser, device count, expected result)
+    - Bump cacheVersion and update relativePathsToCache in public/service-worker.js whenever files under public/ are added, renamed, or removed
+    - Add new user-facing strings to public/lang/en.json with their data-i18n-key wiring; other locales fall back to English
