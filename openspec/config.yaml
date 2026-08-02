@@ -19,7 +19,7 @@ context: |
     - public/service-worker.js precaches the app shell. Adding, renaming, or removing any asset
       under public/ means updating relativePathsToCache and bumping cacheVersion.
     - User-facing strings are localized: keys in public/lang/en.json, referenced from markup via
-      data-i18n-key / data-i18n-attrs. `en` is the default locale and the fallback for 36 others.
+      data-i18n-key / data-i18n-attrs. `en` is the default locale and the fallback for 37 others.
     - Targets current mobile and desktop browsers and runs installed as a PWA; feature-detect
       rather than assume support.
 
