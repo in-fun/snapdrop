@@ -1,0 +1,123 @@
+/* Styles for the promotional banner */
+.promo-banner {
+    display: flex;
+    width: 100%;
+    background-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    font-size: 1.125rem;
+    margin: 0 0 8px 0;
+    position: relative;
+    z-index: 10;
+}
+
+.promo-banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 40px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+
+.promo-banner-text {
+    margin-right: 1rem;
+    line-height: 1.5;
+    color: white;
+    min-width: 200px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.promo-banner-cta {
+    white-space: nowrap;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 4px 0;
+    transition: all 0.2s ease;
+    background-color: white;
+    color: var(--primary-color);
+}
+
+.promo-banner-cta:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    /* transform: translateY(-1px); */
+}
+
+.promo-banner-close {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+    color: white;
+}
+
+.promo-banner-close:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Light theme styles */
+.promo-banner.light-theme {
+    background-color: #6366f1;
+    background-image: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+/* Dark theme styles */
+.promo-banner.dark-theme {
+    background-color: #4f46e5;
+    background-image: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+
+/* Hidden state */
+.promo-banner.hidden {
+    display: none;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .promo-banner-content {
+        padding: 10px 12px;
+    }
+
+    .promo-banner-text {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .promo-banner-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .promo-banner-text {
+        margin-bottom: 0.5rem;
+    }
+
+    .promo-banner-cta {
+        margin: 0;
+    }
+
+    .promo-banner-close {
+        top: 8px;
+        right: 8px;
+        transform: none;
+    }
+} 

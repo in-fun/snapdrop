@@ -7,13 +7,15 @@ class PairDrop {
         this.$headerInstallBtn = $('install');
 
         this.deferredStyles = [
-            "styles/styles-deferred.css"
+            "styles/styles-deferred.css",
+            "styles/promo-banner.css"
         ];
         this.deferredScripts = [
             "scripts/browser-tabs-connector.js",
             "scripts/util.js",
             "scripts/network.js",
             "scripts/ui.js",
+            "scripts/promo-banner.js",
             "scripts/libs/heic2any.min.js",
             "scripts/libs/no-sleep.min.js",
             "scripts/libs/qr-code.min.js",

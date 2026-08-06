@@ -1,4 +1,4 @@
-const cacheVersion = 'v1.11.2';
+const cacheVersion = 'v1.11.3';
 const cacheTitle = `pairdrop-cache-${cacheVersion}`;
 const relativePathsToCache = [
     './',
@@ -6,6 +6,7 @@ const relativePathsToCache = [
     'manifest.json',
     'styles/styles-main.css',
     'styles/styles-deferred.css',
+    'styles/promo-banner.css',
     'scripts/browser-tabs-connector.js',
     'scripts/localization.js',
     'scripts/main.js',
@@ -14,6 +15,7 @@ const relativePathsToCache = [
     'scripts/ui.js',
     'scripts/ui-main.js',
     'scripts/util.js',
+    'scripts/promo-banner.js',
     'scripts/worker/canvas-worker.js',
     'scripts/libs/heic2any.min.js',
     'scripts/libs/no-sleep.min.js',
