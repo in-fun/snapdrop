@@ -46,7 +46,11 @@
         "public-room-devices_title": "You can be discovered by devices in this public room independent of the network.",
         "traffic": "Traffic is",
         "routed": "routed through the server",
-        "webrtc": "if WebRTC is not available."
+        "webrtc": "if WebRTC is not available.",
+        "site-about": "About",
+        "site-how-it-works": "How it works",
+        "site-privacy": "Privacy",
+        "site-terms": "Terms"
     },
     "dialogs": {
         "pair-devices-title": "Pair Devices Permanently",

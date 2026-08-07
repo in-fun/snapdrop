@@ -17,6 +17,9 @@
     <meta name="description" content="Instantly share images, videos, PDFs, and links with people nearby. Peer2Peer and Open Source. No Setup, No Signup.">
     <meta name="keywords" content="File, Transfer, Share, Peer2Peer">
     <meta name="author" content="lilac">
+    <!-- The shell answers at `/`, `/index.html`, and - since serve-static gained
+         `extensions: ['html']` - `/index`. Consolidate all three on the canonical root. -->
+    <link rel="canonical" href="https://snap-drop.net/">
     <meta property="og:title" content="SnapDrop">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://snap-drop.net/">
@@ -193,6 +196,16 @@
                     <span class="badge badge-room-public-id pointer" data-i18n-key="footer.public-room-devices" data-i18n-attrs="title" hidden>in room IAIAI</span>
                 </div>
             </div>
+            <!-- Anchor text is present in the markup, not left for localization to fill in.
+                 Every other string here is injected client-side, which is precisely why this
+                 origin read as an empty page to a reviewer. Localization overwrites these on
+                 hydration; until then they are real, crawlable links. -->
+            <nav class="site-links row center wrap">
+                <a href="/about" data-i18n-key="footer.site-about" data-i18n-attrs="text">About</a>
+                <a href="/how-it-works" data-i18n-key="footer.site-how-it-works" data-i18n-attrs="text">How it works</a>
+                <a href="/privacy" data-i18n-key="footer.site-privacy" data-i18n-attrs="text">Privacy</a>
+                <a href="/terms" data-i18n-key="footer.site-terms" data-i18n-attrs="text">Terms</a>
+            </nav>
         </div>
     </footer>
     <!-- Language Select Dialog -->

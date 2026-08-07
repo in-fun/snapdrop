@@ -465,6 +465,24 @@ footer .logo {
     margin-top: -10px;
 }
 
+/* Links to the static content pages. Deliberately quiet and last in the footer so
+   they never compete with the discovery badges or reach into the peer area. */
+footer .site-links {
+    margin-top: 6px;
+    gap: 12px;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+footer .site-links a {
+    color: rgb(var(--text-color));
+    text-decoration: none;
+}
+
+footer .site-links a:hover {
+    text-decoration: underline;
+}
+
 .border {
     border: 2px solid var(--border-color);
 }

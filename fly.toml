@@ -12,6 +12,12 @@ swap_size_mb = 512
 # Add runtime environment variables
 [env]
   NODE_ENV = 'production'
+  # Surfaces the privacy policy button in the About dialog.
+  # TITLE is deliberately not set: _evaluateBtnConfig strips data-i18n-key when a custom
+  # title is supplied, which would freeze the tooltip to English and discard the existing
+  # `about.privacypolicy_title` translation in every other locale.
+  PRIVACYPOLICY_BUTTON_ACTIVE = 'true'
+  PRIVACYPOLICY_BUTTON_LINK = '/privacy'
 
 [http_service]
   internal_port = 3000

@@ -21,10 +21,12 @@ This unblocks resubmission. Resubmitting the current site would fail again — t
 
 - Add four hand-authored static HTML content pages under `public/`, served at extensionless URLs:
   - `/about` — what SnapDrop is, who operates the instance, contact address, and honest attribution to the upstream Snapdrop/PairDrop projects.
-  - `/how-it-works` — original technical prose on WebRTC transfer, signaling, device pairing, public rooms, and TURN fallback. This is the substantive, non-duplicative content the origin currently lacks.
+  - `/how-it-works` — original technical prose on WebRTC transfer, signaling, device pairing, public rooms, and NAT traversal. This is the substantive, non-duplicative content the origin currently lacks. Note the live signalling server reports `wsFallback: false` and a STUN-only `iceServers`, so this deployment runs no TURN relay and no WebSocket fallback — the page must say what actually happens (the transfer fails) rather than describe a relay that does not exist.
   - `/privacy` — what the instance does and does not collect, the fact that file contents never traverse the server, and third-party advertising and cookie disclosure.
   - `/terms` — acceptable use, prohibition on transferring infringing or unlawful material, and disclaimer of warranty.
 - Replace the catch-all 301 in `server/server.js` with real content-page routing and a genuine 404 response. **BREAKING** for anything relying on unknown paths redirecting to `/`.
+- Add an explicit `POST /` route answering `303 See Other` to `/`. The static middleware serves `GET` and `HEAD` only, so removing the catch-all would otherwise drop the Web Share Target's network fallback for any client whose service worker is not currently controlling.
+- Harden the service worker's cache-exclusion matcher: ignore query strings and fragments, so a reader arriving at `/privacy?gclid=…` still bypasses the cache, and never write error responses to the cache now that unknown paths return a real 404 instead of a redirect.
 - Make the pages discoverable: persistent links in the app footer, cross-links between pages, a `sitemap.xml`, and a `Sitemap:` directive in `robots.txt`.
 - Keep the pages out of the service worker's precache and runtime cache, following the documented `ads.txt` precedent, so copy edits ship without a `cacheVersion` bump.
 - Wire the existing `PRIVACYPOLICY_BUTTON_*` configuration to the new `/privacy` page for the `snap-drop.net` deployment.
@@ -46,9 +48,9 @@ Explicitly out of scope: server-side rendering of the app shell, a build step, a
 
 ## Impact
 
-- **`server/server.js`** — static-middleware options and route ordering. Note the existing `app.get('/')` handler at line 61 is unreachable dead code, registered after the catch-all `app.use`; the routing rework resolves that.
-- **`public/`** — four new HTML pages, one small shared stylesheet, `sitemap.xml`; edits to `robots.txt` and to the footer in `index.html`.
-- **`public/service-worker.js`** — new entries in `relativePathsNotToCache`. No `cacheVersion` bump if nothing enters the precache list.
+- **`server/server.js`** — static-middleware options, route ordering, a new `POST /` route, and a 404 handler in place of the catch-all redirect. Note the existing `app.get('/')` handler at line 61 is unreachable dead code, registered after the catch-all `app.use`; the routing rework resolves that.
+- **`public/`** — four new HTML pages plus a 404 page, one small shared stylesheet, `sitemap.xml`; edits to `robots.txt`, and to `index.html` for the footer links, a canonical URL, and the verification snippet.
+- **`public/service-worker.js`** — new entries in `relativePathsNotToCache`, plus two behavioural changes: the matcher now strips query and fragment before comparing, and error responses are never cached. No content page enters the precache list, so none of them forces a `cacheVersion` bump — but the change does bump it once, because `index.html`, `styles-main.css`, and `lang/en.json` are precached and all three changed.
 - **`public/lang/en.json`** — i18n keys for the new footer link labels only. Page bodies are English-only and live in the HTML.
 - **Deployment** — `PRIVACYPOLICY_BUTTON_*` environment variables set for `snap-drop.net`. Self-hosters inherit the pages as editable static files; the operator-specific identity and contact details in them are theirs to replace or delete.
 - **`public/index.html`** — the verification snippet in `<head>`, in addition to the footer links.

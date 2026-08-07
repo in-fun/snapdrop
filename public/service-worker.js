@@ -1,7 +1,7 @@
 // Fork-local shell revision on an upstream base. `-sd.N` avoids colliding with
 // upstream's eventual v1.12.0 and with v1.11.3, already claimed on feat/ad-banner.
 // Only contract is uniqueness; package.json tracks upstream release lineage.
-const cacheVersion = 'v1.11.2-sd.1';
+const cacheVersion = 'v1.11.2-sd.2';
 const cacheTitle = `pairdrop-cache-${cacheVersion}`;
 const relativePathsToCache = [
     './',
@@ -73,7 +73,24 @@ const relativePathsNotToCache = [
     'config',
     // Crawled by ad networks, never fetched by the app. Kept out of the precache
     // and out of the runtime cache so no stale publisher declaration is served.
-    'ads.txt'
+    'ads.txt',
+    // Informational pages, not app shell. Excluded for the same reason as ads.txt:
+    // offline access to a privacy policy is worthless, while a stale cached policy is a
+    // compliance problem exactly when a disclosure has just changed. Excluding them also
+    // decouples copy edits from cacheVersion, so fixing a typo costs no shell re-download.
+    // Both URL forms are listed because doNotCacheRequest matches the relative path exactly.
+    'about',
+    'about.html',
+    'how-it-works',
+    'how-it-works.html',
+    'privacy',
+    'privacy.html',
+    'terms',
+    'terms.html',
+    '404',
+    '404.html',
+    'styles/pages.css',
+    'sitemap.xml'
 ]
 
 self.addEventListener('install', function(event) {
@@ -108,6 +125,10 @@ const fromNetwork = (request, timeout) =>
                 // Prevent requests that are in relativePathsNotToCache from being cached
                 if (doNotCacheRequest(request)) return;
 
+                // Never cache an error body. Unknown paths now return a real 404 instead of
+                // redirecting to `/`, and a cached 404 would outlive the mistake that caused it.
+                if (!response.ok) return;
+
                 updateCache(request)
                     .then(() => console.log("Cache successfully updated for", request.url))
                     .catch(err => console.log("Cache could not be updated for", request.url, err));
@@ -131,7 +152,11 @@ const rootUrl = location.href.substring(0, location.href.length - "service-worke
 const rootUrlLength = rootUrl.length;
 
 const doNotCacheRequest = request => {
-    const requestRelativePath = request.url.substring(rootUrlLength);
+    // Query and fragment are stripped before matching. An ad- or search-referred visitor arrives at
+    // `/privacy?utm_source=…` or `?gclid=…`, and matching the raw URL would miss the exclusion and
+    // pin a stale policy in the versioned cache until the next cacheVersion bump - the exact failure
+    // this list exists to prevent.
+    const requestRelativePath = request.url.split(/[?#]/)[0].substring(rootUrlLength);
     return relativePathsNotToCache.indexOf(requestRelativePath) !== -1
 };
 
@@ -144,6 +169,10 @@ const updateCache = request => new Promise((resolve, reject) => {
                 .then(response => {
                     if (response.redirected) {
                         throw new Error("Fetch is redirect. Abort usage and cache!");
+                    }
+
+                    if (!response.ok) {
+                        throw new Error("Fetch is an error response. Abort cache!");
                     }
 
                     cache

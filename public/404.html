@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found — SnapDrop</title>
+    <meta name="description" content="This page does not exist on snap-drop.net.">
+    <!-- Root-absolute paths because this body is served at every unresolvable path, so
+         document-relative URLs would resolve against the request path
+         (/deep/nested/garbage -> /deep/nested/styles/pages.css) and break. The other content
+         pages keep relative asset refs only because they sit at a known depth, not because
+         these pages are portable to a subpath deployment - they are not: each hardcodes a
+         snap-drop.net canonical and links to the app as "/".
+         noindex rather than rel=canonical - canonicalising a body served at arbitrary URLs
+         would advertise those URLs as indexable. -->
+    <meta name="robots" content="noindex">
+    <link rel="icon" sizes="96x96" href="/images/favicon-96x96.png">
+    <link rel="stylesheet" type="text/css" href="/styles/pages.css">
+</head>
+
+<body>
+    <h1>Page not found</h1>
+
+    <p>
+        There is nothing at this address. If you followed a link to transfer a file, it may have
+        expired — pairing keys and room codes are deliberately short-lived.
+    </p>
+
+    <p>
+        <a href="/">Open SnapDrop</a> to start a transfer.
+    </p>
+
+    <nav>
+        <a href="/">SnapDrop</a>
+        <a href="/about">About</a>
+        <a href="/how-it-works">How it works</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+    </nav>
+
+    <footer>This page is available in English only.</footer>
+</body>
+
+</html>

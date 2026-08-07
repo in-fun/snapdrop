@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About SnapDrop</title>
+    <meta name="description" content="What SnapDrop is, who runs this instance, and how it relates to the Snapdrop and PairDrop projects it is built on.">
+    <link rel="canonical" href="https://snap-drop.net/about">
+    <link rel="icon" sizes="96x96" href="images/favicon-96x96.png">
+    <link rel="stylesheet" type="text/css" href="styles/pages.css">
+</head>
+
+<body>
+    <h1>About SnapDrop</h1>
+
+    <p>
+        SnapDrop moves files straight from one device to another using your web browser. There is
+        nothing to install, no account to create, and no upload step — you open the same page on two
+        devices and they find each other.
+    </p>
+
+    <p>
+        It exists because sending a photo from a phone to a laptop is still unreasonably annoying if
+        the two devices do not share an ecosystem. AirDrop solves this beautifully, for Apple
+        hardware only. SnapDrop solves the same problem for whatever you happen to have.
+    </p>
+
+    <h2>Who runs this instance</h2>
+
+    <p>
+        <code>snap-drop.net</code> is operated by <strong>lilac</strong>, an independent developer.
+        It is a personal project, not a company, and it is free to use.
+    </p>
+
+    <p>
+        You can reach the operator at <a href="mailto:contact@snap-drop.net">contact@snap-drop.net</a>
+        for anything about the service, including privacy questions and requests about your data.
+        For bugs and feature requests, the
+        <a href="https://github.com/in-fun/snapdrop/issues" rel="noreferrer">issue tracker</a>
+        is a better place — it is public and other people benefit from the answer.
+    </p>
+
+    <p>
+        Running costs are covered out of pocket, with some help from
+        <a href="https://github.com/sponsors/in-fun" rel="noreferrer">sponsors</a> and from
+        advertising on this site.
+    </p>
+
+    <h2>What it is built on</h2>
+
+    <p>
+        SnapDrop is a fork. It descends from
+        <a href="https://github.com/RobinLinus/snapdrop" rel="noreferrer">Snapdrop</a> by Robin Linus,
+        which established the idea, and from
+        <a href="https://github.com/schlagmichdoch/PairDrop" rel="noreferrer">PairDrop</a> by
+        schlagmichdoch, which added persistent device pairing and transfers between networks. Nearly
+        all of the engineering behind the transfer itself is theirs, and both projects deserve the
+        credit for it.
+    </p>
+
+    <p>
+        This fork exists to run a maintained public instance and to make small changes to how that
+        instance is hosted and funded. The source is
+        <a href="https://github.com/in-fun/snapdrop" rel="noreferrer">on GitHub</a>. If you would
+        rather not depend on someone else's server, you can host it yourself — that is a supported
+        and genuinely reasonable thing to do.
+    </p>
+
+    <h2>If you are self-hosting</h2>
+
+    <p>
+        The operator name, contact address, and funding details on this page describe
+        <code>snap-drop.net</code> specifically. If you deploy your own instance, replace them with
+        your own or delete these pages entirely — nothing in the application depends on them. The
+        same applies to the <a href="privacy">privacy policy</a> and the
+        <a href="terms">terms of use</a>, which describe how <em>this</em> instance is run and would
+        be inaccurate for yours.
+    </p>
+
+    <p>
+        Two things are worth changing rather than deleting. These pages hardcode
+        <code>snap-drop.net</code> in their <code>rel="canonical"</code> tags, and so does the
+        application page — left as-is, that tells search engines your homepage is really ours. They
+        also assume they are served from the site root. Both are a few lines of find-and-replace, and
+        both are easy to miss.
+    </p>
+
+    <nav>
+        <a href="/">SnapDrop</a>
+        <a href="how-it-works">How it works</a>
+        <a href="privacy">Privacy</a>
+        <a href="terms">Terms</a>
+    </nav>
+
+    <footer>This page is available in English only.</footer>
+</body>
+
+</html>

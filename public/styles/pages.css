@@ -1,0 +1,69 @@
+/*
+    Styling for the static content pages (about, how-it-works, privacy, terms, 404).
+    These pages load no application script, so there is no `dark-theme` class to
+    observe - the OS preference is the only theme signal available. Colour values
+    are copied from styles-main.css rather than imported, because importing the
+    app stylesheet would pull in the whole shell layout for four prose documents.
+*/
+
+:root {
+    color-scheme: light dark;
+    --primary-color: #4285f4;
+    --text-color: 51, 51, 51;
+    --bg-color: 255, 255, 255;
+    --bg-color-secondary: #f2f2f2;
+    --border-color: #757575;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-color: 238, 238, 238;
+        --bg-color: 0, 0, 0;
+        --bg-color-secondary: #262628;
+    }
+}
+
+body {
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+    max-width: 65ch;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: rgb(var(--text-color));
+    background-color: rgb(var(--bg-color));
+}
+
+h1 { font-size: 1.75rem; line-height: 1.25; margin: 0 0 0.5rem; }
+h2 { font-size: 1.25rem; margin: 2.5rem 0 0.75rem; }
+p, ul, dl { margin: 0 0 1rem; }
+li { margin-bottom: 0.35rem; }
+dt { font-weight: 600; margin-top: 1rem; }
+dd { margin: 0.25rem 0 0; }
+
+a { color: var(--primary-color); }
+a:hover { text-decoration: none; }
+
+code {
+    background-color: var(--bg-color-secondary);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.updated { opacity: 0.7; font-size: 0.9rem; margin-bottom: 2rem; }
+
+nav {
+    margin: 3rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+nav a { margin-right: 1rem; display: inline-block; }
+
+footer {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    opacity: 0.7;
+}

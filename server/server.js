@@ -33,7 +33,14 @@ export default class PairDropServer {
         const __dirname = dirname(__filename);
 
         const publicPathAbs = path.join(__dirname, '../public');
-        app.use(express.static(publicPathAbs));
+
+        // `extensions` serves `about.html` for `/about` directly - serve-static appends the
+        // extension and responds 200 rather than redirecting. That is load-bearing: the service
+        // worker aborts on any redirected response (see `fromNetwork` in service-worker.js), so a
+        // redirect here would make the content pages unreachable for every installed client.
+        app.use(express.static(publicPathAbs, { extensions: ['html'] }));
+
+        console.log(`Serving client files from:\n${publicPathAbs}`);
 
         if (conf.debugMode && conf.rateLimit) {
             console.debug("\n");
@@ -54,13 +61,20 @@ export default class PairDropServer {
             });
         });
 
-        app.use((req, res) => {
-            res.redirect(301, '/');
+        // Web Share Target posts to `/` (see manifest.json). An installed client's service worker
+        // intercepts that POST, but if the worker is not yet active or has been unregistered the
+        // request reaches the network - and express.static only answers GET and HEAD, so without
+        // this it would fall through to the 404 below. 303 sends the browser to `GET /`, which is
+        // where the old catch-all redirect landed it.
+        app.post('/', (req, res) => {
+            res.redirect(303, '/');
         });
 
-        app.get('/', (req, res) => {
-            res.sendFile('index.html');
-            console.log(`Serving client files from:\n${publicPathAbs}`)
+        // Unresolvable paths get a real 404. This previously redirected everything to `/`, which
+        // told crawlers that infinitely many URLs existed and all served the application shell.
+        // Must stay last, after the static middleware and after `/config`.
+        app.use((req, res) => {
+            res.status(404).sendFile(path.join(publicPathAbs, '404.html'));
         });
 
         const hostname = conf.localhostOnly ? '127.0.0.1' : null;

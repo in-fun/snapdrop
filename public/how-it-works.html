@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How SnapDrop Works</title>
+    <meta name="description" content="How SnapDrop transfers files directly between devices with WebRTC, what the signalling server can and cannot see, and how device pairing and public rooms work.">
+    <link rel="canonical" href="https://snap-drop.net/how-it-works">
+    <link rel="icon" sizes="96x96" href="images/favicon-96x96.png">
+    <link rel="stylesheet" type="text/css" href="styles/pages.css">
+</head>
+
+<body>
+    <h1>How SnapDrop works</h1>
+
+    <p>
+        Most "send a file" services work by uploading your file to a server, giving you a link, and
+        letting the other person download it. SnapDrop does not do that. Your file goes directly from
+        one device to the other, and the only thing our server ever handles is the introduction.
+    </p>
+
+    <p>
+        This page explains what that actually means, because "peer-to-peer" is a claim worth being
+        specific about.
+    </p>
+
+    <h2>The connection</h2>
+
+    <p>
+        Transfers run over <strong>WebRTC</strong>, a browser feature designed for direct connections
+        between two machines. Once the connection is established, your browser opens a data channel
+        to the other browser and writes the file into it in 64 KB chunks.
+    </p>
+
+    <p>
+        WebRTC data channels are encrypted with DTLS. This is not optional and not something we
+        implemented — the browser will not open an unencrypted data channel. So the file is encrypted
+        by your browser before it leaves the device, and decrypted by the receiving browser.
+    </p>
+
+    <h2>What the signalling server does</h2>
+
+    <p>
+        Two browsers cannot find each other unaided. Something has to pass the first messages between
+        them, and that is the only job our server has. It is called a signalling server, and it
+        handles three things:
+    </p>
+
+    <dl>
+        <dt>Grouping devices that might want to talk</dt>
+        <dd>
+            When you open SnapDrop, your browser opens a WebSocket to the server. The server notes
+            the public IP address the connection came from and places you in a room with everyone
+            else on that address. That is why devices on the same Wi-Fi see each other with no setup:
+            to the outside world they share one IP.
+        </dd>
+
+        <dt>Giving your device a name</dt>
+        <dd>
+            The server reads your browser's User-Agent header to work out a device label like
+            "Android Chrome". It also generates a random identifier for your device and derives a
+            display name like "Purple Otter" from it. The name is deterministic from that identifier
+            and from nothing else, so it stays stable for as long as your browser tab holds the
+            identifier — a reload keeps it, closing the tab discards it, and your next visit gets a
+            new name. If you would rather keep a name, editing it stores it on your device until you
+            clear site data.
+        </dd>
+
+        <dt>Relaying the handshake</dt>
+        <dd>
+            When you pick a device to send to, the two browsers negotiate: session descriptions
+            describing what they support, and candidate network addresses to try. These messages go
+            through our server because there is no other channel yet. Once the browsers agree, they
+            connect directly and the server stops being involved.
+        </dd>
+    </dl>
+
+    <p>
+        The signalling server never receives file data. It is not a design goal that we enforce
+        carefully — it is structural. File bytes are written to a WebRTC data channel that the server
+        is not a party to, and there is no code path that sends them anywhere else.
+    </p>
+
+    <h2>Finding a route between two devices</h2>
+
+    <p>
+        Devices are usually behind a router doing network address translation, so neither knows the
+        address the other should dial. WebRTC solves this with a <strong>STUN</strong> server: your
+        browser asks it "what address do I appear to come from?", and the answer becomes one of the
+        candidates offered during the handshake. This instance uses Google's public STUN server for
+        that. A STUN request reveals your IP address to that server; it carries no file data and no
+        information about what you are sending.
+    </p>
+
+    <p>
+        On a home or office network this is usually enough. Some networks — symmetric NAT, certain
+        corporate firewalls, some mobile carriers — will not permit a direct connection at all. The
+        standard workaround is a <strong>TURN</strong> relay, which forwards the encrypted stream
+        between the two devices.
+    </p>
+
+    <p>
+        <strong>This instance does not run a TURN server.</strong> If a direct connection cannot be
+        established, the transfer fails rather than falling back to a relay. That is a deliberate
+        trade-off: it means there is no configuration under which your file passes through
+        infrastructure we operate, at the cost of not working on every network. If a transfer will
+        not start, both devices being on the same Wi-Fi is the reliable fix.
+    </p>
+
+    <h2>Pairing devices</h2>
+
+    <p>
+        Sharing a public IP address only helps when both devices are on the same network. Pairing is
+        how you connect devices that are not.
+    </p>
+
+    <p>
+        One device requests a pairing key — six digits, also rendered as a QR code. Entering that key
+        on a second device tells the server the two belong together, and the server hands both a
+        shared secret. Each browser stores that secret locally. From then on, both devices join a
+        room derived from the secret whenever they connect, so they find each other regardless of
+        which network they are on.
+    </p>
+
+    <p>
+        The pairing key is single-use — it stops working the moment a second device redeems it, and
+        it is also dropped if you cancel, request a new one, or close the tab. The secret it
+        establishes is what persists. Unpairing deletes that secret from your device and from the
+        server's routing table, and because it lives in your browser's storage, clearing site data
+        unpairs everything.
+    </p>
+
+    <h2>Public rooms</h2>
+
+    <p>
+        A public room is the temporary version of pairing, for sending something to a person rather
+        than to your own other device. One person creates a room and gets a short code; anyone who
+        enters that code joins the same room and can see and send to the others in it.
+    </p>
+
+    <p>
+        Rooms are ephemeral. They exist in the server's memory while someone is in them and vanish
+        when the last participant leaves — there is no record of who was in a room or what moved
+        through it. Anyone with the code can join while it is active, so treat the code as the only
+        access control there is.
+    </p>
+
+    <h2>What this means in practice</h2>
+
+    <ul>
+        <li>Your files are not uploaded anywhere and are not stored on any server.</li>
+        <li>Both devices must be online at the same time — there is no mailbox to leave a file in.</li>
+        <li>There is no size limit imposed by us, because we are not paying to store anything.</li>
+        <li>Transfer speed is the speed of the path between the two devices, not of our server.</li>
+        <li>We cannot recover a transfer that failed, because we never had a copy.</li>
+    </ul>
+
+    <p>
+        What the server does record, and for how long, is set out in the
+        <a href="privacy">privacy policy</a>.
+    </p>
+
+    <nav>
+        <a href="/">SnapDrop</a>
+        <a href="about">About</a>
+        <a href="privacy">Privacy</a>
+        <a href="terms">Terms</a>
+    </nav>
+
+    <footer>This page is available in English only.</footer>
+</body>
+
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — SnapDrop</title>
+    <meta name="description" content="What snap-drop.net collects, what it does not, and how third-party advertising cookies are used on this site.">
+    <link rel="canonical" href="https://snap-drop.net/privacy">
+    <link rel="icon" sizes="96x96" href="images/favicon-96x96.png">
+    <link rel="stylesheet" type="text/css" href="styles/pages.css">
+</head>
+
+<body>
+    <h1>Privacy policy</h1>
+
+    <p class="updated">Last updated: 7 August 2026</p>
+
+    <p>
+        This policy covers <code>snap-drop.net</code>, operated by lilac. It describes this instance
+        specifically. If you are using a self-hosted copy of SnapDrop, this policy does not apply to
+        you — ask whoever runs it.
+    </p>
+
+    <h2>The short version</h2>
+
+    <p>
+        Files you send never reach our server. They go directly from one device to the other,
+        encrypted by your browser. We have no copy, no log of what you sent, and no way to recover
+        it. The server exists to introduce two devices to each other, and that introduction is the
+        only thing it handles. <a href="how-it-works">How it works</a> explains the mechanics.
+    </p>
+
+    <p>
+        This site does show advertising, which does involve third-party cookies. That part is set out
+        in full below.
+    </p>
+
+    <h2>What the service handles</h2>
+
+    <dl>
+        <dt>Your IP address</dt>
+        <dd>
+            The server sees the IP address your connection comes from and uses it to group devices
+            that appear to share a network, so they can discover each other. It is held in memory for
+            the duration of your connection and discarded when you disconnect. It is not written to a
+            database — there is no database.
+        </dd>
+
+        <dt>Your browser's User-Agent</dt>
+        <dd>
+            Used to label your device in other people's lists — "Android Chrome", "Windows Firefox".
+            Held in memory for the duration of your connection.
+        </dd>
+
+        <dt>A random device identifier</dt>
+        <dd>
+            When you connect, the server generates a random identifier for your device and sends it
+            to your browser, which keeps it in session storage for as long as the tab is open. Your
+            display name is derived from it. It is not derived from anything about you or your
+            device. It survives a reload or a dropped connection, so your device keeps the same name
+            within a session, but closing the tab discards it — come back later and you get a new
+            identifier and a new display name. A display name you set yourself is stored on your
+            device and does persist, until you clear site data.
+        </dd>
+
+        <dt>Pairing secrets and room codes</dt>
+        <dd>
+            If you pair devices, both hold a shared secret used to find each other. The server keeps
+            a routing entry for it in memory so it can put your devices in the same room. Unpairing
+            removes it. Public room codes work the same way and disappear when the last person
+            leaves.
+        </dd>
+    </dl>
+
+    <p>
+        Nothing in that list is written to persistent storage by the application. Restarting the
+        server discards all of it.
+    </p>
+
+    <h2>What we never handle</h2>
+
+    <ul>
+        <li>The contents of files, messages, or links you transfer.</li>
+        <li>Filenames, file sizes, or file types.</li>
+        <li>A record of who sent what to whom.</li>
+        <li>Any account, email address, or profile — there are none.</li>
+    </ul>
+
+    <p>
+        This instance runs no TURN relay and no WebSocket transfer fallback, so there is no
+        configuration in which transferred data passes through infrastructure we operate. If a direct
+        connection cannot be made, the transfer fails instead.
+    </p>
+
+    <h2>Storage on your own device</h2>
+
+    <p>
+        SnapDrop itself sets no cookies. It uses your browser's local storage, session storage, and
+        IndexedDB to hold your device identifier, your preferences, pairing secrets, and files handed
+        to it by the system share sheet. This data stays on your device. Clearing site data for
+        <code>snap-drop.net</code> removes all of it and unpairs your devices.
+    </p>
+
+    <h2>Third parties</h2>
+
+    <dl>
+        <dt>Cloudflare and Fly.io</dt>
+        <dd>
+            This site is served through Cloudflare and hosted on Fly.io. Both necessarily process
+            connection metadata, including your IP address, to route and serve requests, under their
+            own privacy policies.
+        </dd>
+
+        <dt>Google STUN</dt>
+        <dd>
+            To find a route between two devices, your browser queries Google's public STUN server at
+            <code>stun.l.google.com</code>. This reveals your IP address to Google. It carries no
+            file data and no information about what you are transferring.
+        </dd>
+
+        <dt>Google AdSense</dt>
+        <dd>See below.</dd>
+    </dl>
+
+    <h2>Advertising</h2>
+
+    <p>
+        This site uses Google AdSense to fund its running costs. When advertising is active, the
+        AdSense script loads on the application page and the cookies described below may be set.
+    </p>
+
+    <ul>
+        <li>
+            Third-party vendors, including Google, use cookies to serve ads based on a user's prior
+            visits to this website or other websites.
+        </li>
+        <li>
+            Google's use of advertising cookies enables it and its partners to serve ads to you based
+            on your visit to this site and/or other sites on the Internet.
+        </li>
+        <li>
+            You may opt out of personalised advertising by visiting
+            <a href="https://www.google.com/settings/ads" rel="noreferrer">Google Ads Settings</a>.
+        </li>
+        <li>
+            You can opt out of a third-party vendor's use of cookies for personalised advertising at
+            <a href="https://www.aboutads.info/choices/" rel="noreferrer">aboutads.info/choices</a>
+            or the
+            <a href="https://optout.networkadvertising.org/" rel="noreferrer">NAI opt-out page</a>.
+        </li>
+    </ul>
+
+    <p>
+        Ad units are placed outside the transfer area and file data is never passed to them. We
+        should be precise rather than reassuring here: ad code is a third-party script running in the
+        same page as the application, so it has the access that any script in a page has. What we can
+        say concretely is that files are never uploaded, never written to a server, and never handed
+        to advertising code by the application.
+    </p>
+
+    <p>
+        If you are in the EEA, the UK, or Switzerland, personalised advertising requires consent
+        collected through a Google-certified consent management platform. That platform is not yet in
+        place on this site, and until it is, no personalised advertising is served to you.
+    </p>
+
+    <h2>Children</h2>
+
+    <p>
+        This service is not directed at children under 13, and we do not knowingly collect
+        information from them. Since there are no accounts, we hold nothing that would identify a
+        user's age.
+    </p>
+
+    <h2>Your rights and contact</h2>
+
+    <p>
+        Because we hold no persistent personal data and no accounts, there is generally nothing to
+        export or delete on our side — anything relating to you lives in your own browser, and
+        clearing site data removes it. If you have a question or a request about your data, write to
+        <a href="mailto:contact@snap-drop.net">contact@snap-drop.net</a>.
+    </p>
+
+    <h2>Changes</h2>
+
+    <p>
+        Material changes to this policy will be reflected in the "last updated" date above. Because
+        this page is served fresh rather than cached offline, you always see the current version.
+    </p>
+
+    <nav>
+        <a href="/">SnapDrop</a>
+        <a href="about">About</a>
+        <a href="how-it-works">How it works</a>
+        <a href="terms">Terms</a>
+    </nav>
+
+    <footer>This page is available in English only.</footer>
+</body>
+
+</html>

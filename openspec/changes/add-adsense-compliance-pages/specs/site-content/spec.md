@@ -2,7 +2,7 @@
 
 Governs the informational layer that exists alongside the transfer app: the content pages, how they are addressed and served, how they are discovered, how they interact with the offline cache, and the guarantees they owe the core transfer experience.
 
-**Platform behavior these requirements rest on:** [`serve-static` options](https://expressjs.com/en/resources/middleware/serve-static) (`extensions` serves the extension-appended file directly rather than redirecting; `fallthrough` passes unmatched requests to the next handler), [HTTP semantics](https://www.rfc-editor.org/rfc/rfc9110#name-404-not-found) (`404 Not Found` versus `301 Moved Permanently`), [`rel=canonical`](https://www.rfc-editor.org/rfc/rfc6596) for duplicate URL consolidation, the service worker [`FetchEvent`](https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent) model and [`Response.redirected`](https://developer.mozilla.org/en-US/docs/Web/API/Response/redirected) (this deployment's worker aborts on redirected responses), the [Sitemaps protocol](https://www.sitemaps.org/protocol.html), and [robots.txt](https://www.rfc-editor.org/rfc/rfc9309) including its `Sitemap` directive.
+**Platform behavior these requirements rest on:** [`serve-static` options](https://expressjs.com/en/resources/middleware/serve-static) (`extensions` serves the extension-appended file directly rather than redirecting; `fallthrough` passes unmatched requests to the next handler), [HTTP semantics](https://www.rfc-editor.org/rfc/rfc9110#name-404-not-found) (`404 Not Found` versus `301 Moved Permanently`, and [`303 See Other`](https://www.rfc-editor.org/rfc/rfc9110#name-303-see-other), the status that mandates a method change to `GET`), [`rel=canonical`](https://www.rfc-editor.org/rfc/rfc6596) for duplicate URL consolidation, the service worker [`FetchEvent`](https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent) model and [`Response.redirected`](https://developer.mozilla.org/en-US/docs/Web/API/Response/redirected) (this deployment's worker aborts on redirected responses), the [Sitemaps protocol](https://www.sitemaps.org/protocol.html), and [robots.txt](https://www.rfc-editor.org/rfc/rfc9309) including its `Sitemap` directive.
 
 **Policies these requirements encode:** [AdSense eligibility requirements](https://support.google.com/adsense/answer/9724) (content must be original and high quality), [Required content](https://support.google.com/adsense/answer/1348695) (the specific third-party cookie, personalized advertising, and opt-out disclosures a publisher privacy policy must carry), [AdSense Program policies](https://support.google.com/adsense/answer/48182), and the [Google Publisher Policies](https://support.google.com/publisherpolicies/answer/10502938) prohibition on scraped or replicated content and on facilitating unauthorized distribution of copyrighted material.
 
@@ -12,10 +12,10 @@ Governs the informational layer that exists alongside the transfer app: the cont
 
 The deployment SHALL serve exactly five informational documents, each a standalone static HTML file under `public/` with a single defined purpose:
 
-| Canonical URL | Purpose |
+| URL | Purpose |
 | --- | --- |
 | `/about` | What SnapDrop is, who operates this instance, a contact address, and attribution to the upstream projects |
-| `/how-it-works` | Original technical prose on WebRTC transfer, signaling, pairing, public rooms, and TURN fallback |
+| `/how-it-works` | Original technical prose on WebRTC transfer, signaling, pairing, public rooms, and NAT traversal |
 | `/privacy` | Data handling for this instance and the third-party advertising disclosures |
 | `/terms` | Acceptable use, prohibited content, and disclaimer of warranty |
 | `/404` | The body returned for unresolvable paths |
@@ -37,7 +37,9 @@ Each page MUST be readable without JavaScript, MUST NOT load any of the applicat
 
 Content pages SHALL be reachable at extensionless canonical URLs, served by `express.static` configured with `extensions: ['html']`. A request for a canonical URL MUST be answered with `200` and the page body directly.
 
-The `.html` form of each page MUST also answer `200` with the same body. Neither form SHALL redirect to the other. Each page MUST declare `<link rel="canonical">` pointing at its extensionless URL, which is the sole mechanism for consolidating the two forms.
+The `.html` form of each page MUST also answer `200` with the same body. Neither form SHALL redirect to the other. Each of the four content pages MUST declare `<link rel="canonical">` pointing at its extensionless URL, which is the sole mechanism for consolidating the two forms. The application shell MUST likewise declare a canonical URL of `/`, because it answers at `/`, `/index.html`, and `/index`.
+
+The 404 body is exempt and MUST NOT declare a canonical URL. It is served at every unresolvable path, so a canonical would advertise arbitrary nonexistent URLs as indexable. It MUST declare `<meta name="robots" content="noindex">` instead, and its links and asset references MUST be root-absolute, since document-relative URLs would resolve against the request path and break at any depth below the root.
 
 No content page URL SHALL issue a redirect under any circumstances. This deployment's service worker aborts on redirected responses — `fromNetwork` and `updateCache` both throw when `response.redirected` is true — so any redirecting same-origin URL is unreachable for clients that have the worker installed.
 
@@ -92,6 +94,8 @@ Pair and room links are query parameters on the current path, and the Web Share 
 
 Footer links MUST sit within the existing `<footer>` element, outside the `#center` scroll region and outside both ad placements, and MUST NOT overlay, delay, or reduce the peer discovery area or the drag-and-drop target.
 
+The origin MUST continue to answer `POST /`. The static middleware serves `GET` and `HEAD` only, so removing the catch-all leaves `POST` to fall through to the 404 handler; the route SHALL instead answer `303 See Other` with a location of `/`. `303` is required rather than `301` or `302` because it is the status that mandates the method change to `GET`, rather than relying on browser convention.
+
 #### Scenario: Pair link survives the routing change
 
 - **WHEN** a user copies a pair link and opens it on a second device
@@ -101,6 +105,19 @@ Footer links MUST sit within the existing `<footer>` element, outside the `#cent
 
 - **WHEN** a file is shared to the installed PWA, producing a `POST` to `/`
 - **THEN** the service worker intercepts it and the share-target flow completes unchanged
+- **AND** the request never reaches the network, so no redirect is observed by the worker
+
+#### Scenario: Share target posts with no service worker controlling
+
+- **GIVEN** the service worker is not yet active, or has been unregistered
+- **WHEN** a `POST` to `/` reaches the origin
+- **THEN** the response is `303` with a location of `/`, and the browser follows it as a `GET`
+- **AND** the application shell loads, rather than the 404 page
+
+#### Scenario: Other methods are not special-cased
+
+- **WHEN** a `POST` is made to any path other than `/`, or a `PUT`, `PATCH`, or `DELETE` to any path
+- **THEN** the response is `404`, not a redirect
 
 #### Scenario: Drop target is unobstructed
 
@@ -170,7 +187,9 @@ Page bodies SHALL be written for this deployment. Text MUST NOT be copied from t
 
 Content pages, the 404 page, the shared page stylesheet, and `sitemap.xml` SHALL be listed in `relativePathsNotToCache` in `public/service-worker.js`, and SHALL NOT be added to `relativePathsToCache`.
 
-Both URL forms of each page MUST be listed, because `doNotCacheRequest` matches the request path exactly against that list.
+Both URL forms of each page MUST be listed, because `doNotCacheRequest` matches the request path exactly against that list. Matching MUST ignore query strings and fragments, so that a visitor arriving at `/privacy?utm_source=…` or `?gclid=…` still bypasses the cache — an ad- or search-referred reader is exactly who arrives with tracking parameters attached.
+
+Error responses MUST NOT be written to the cache. Unresolvable paths now return a real 404 body rather than a redirect, and a cached 404 would outlive the condition that produced it.
 
 Because the precache list does not change, no content page SHALL require a `cacheVersion` bump, now or when one is added later. This does not exempt the change as a whole: `public/index.html` is precached, so any modification to it — the footer links and the verification snippet — MUST be accompanied by a `cacheVersion` bump, or returning users will continue to receive the previous shell.
 

@@ -53,11 +53,15 @@ Both `/privacy` and `/privacy.html` therefore return 200. Rather than redirect o
 
 ### D3 — Correct the route order; the catch-all becomes a real 404
 
-New order: rate limiter → `express.static` (with `extensions`) → `/config` → 404 handler. The final handler returns `public/404.html` with **status 404**, not a redirect.
+New order: rate limiter → `express.static` (with `extensions`) → `/config` → `app.post('/')` → 404 handler. The final handler returns `public/404.html` with **status 404**, not a redirect. The `POST /` route and the reason it is needed are covered below.
 
 `fallthrough` stays at its default `true` so unmatched static requests fall through to that handler.
 
-*Safety check.* The 301 catch-all is not load-bearing for any client feature. Pair and room links are query parameters on the current path — `_getPairUrl()` appends `?pair_key=`, `_getShareRoomUrl()` appends `?room_id=` (`public/scripts/ui.js:1395`, `:1791`) — `start_url` is `./`, and the Web Share Target action is `/`. No client feature constructs a path-segment URL, so nothing depends on unknown paths resolving to the root.
+*Safety check, and where it was wrong.* Pair and room links are query parameters on the current path — `_getPairUrl()` appends `?pair_key=`, `_getShareRoomUrl()` appends `?room_id=` (`public/scripts/ui.js:1395`, `:1792`) — and `start_url` is `./`. No client feature constructs a path-segment URL, so no *GET* depended on unknown paths resolving to the root.
+
+That check was framed around paths and missed a method. The Web Share Target posts to `/` (`manifest.json`), and `express.static` answers GET and HEAD only, so `POST /` fell through to the new 404 where it previously hit the catch-all redirect and was downgraded to `GET /`. An installed client's service worker intercepts that POST before it reaches the network, so the normal path was unaffected — but the fallback for a worker that is not yet active or has been unregistered was gone. The routing therefore needs an explicit `app.post('/')` returning `303 See Other` to `/`, which is the correct status for a POST→GET transition and does not rely on the browser convention the old 301 depended on.
+
+The general lesson, recorded because it generalises past this change: replacing a catch-all means auditing every **method** the origin previously absorbed, not only every path.
 
 *Why it matters beyond AdSense.* Redirecting every unknown path to a 200 page is a soft 404. It tells crawlers that infinitely many URLs exist and all have the same content, which is its own quality signal against the origin.
 
@@ -73,7 +77,15 @@ Add the page paths, the shared stylesheet, and `sitemap.xml` to `relativePathsNo
 
 This follows the precedent already documented in the file for `ads.txt`: "Crawled by ad networks, never fetched by the app. Kept out of the precache and out of the runtime cache so no stale publisher declaration is served." The same reasoning applies verbatim.
 
-*Implementation note.* `doNotCacheRequest` does an exact string match on the path relative to the service-worker root, so both URL forms need entries — `privacy` and `privacy.html`, and so on for each page. That is explicit and obvious at the cost of being a longer list; changing the matcher to a prefix test would be cleverer and less predictable.
+*Implementation note.* `doNotCacheRequest` matches the path relative to the service-worker root against the list, so both URL forms need entries — `privacy` and `privacy.html`, and so on for each page. That is explicit and obvious at the cost of being a longer list; changing the matcher to a prefix test would be cleverer and less predictable.
+
+Exact matching alone is not sufficient, though, and the first implementation was wrong here. The matcher must strip the query string and fragment before comparing: a reader referred by an ad or a search result arrives at `/privacy?gclid=…` or `?utm_source=…`, which failed the exact match and so was written into the versioned cache — pinning a stale policy for exactly the visitor this list exists to protect.
+
+One residual gap is accepted rather than fixed, because closing it costs normalisation logic out of proportion to the risk: a percent-encoded variant (`/privacy%2ehtml`) still serves 200 and still misses the match.
+
+Separately, and *not* caused by this change: `cache.match` and `cache.put` key on the full URL, so each distinct `?pair_key=` or `?room_id=` link caches its own copy of the shell. Running the old and new matchers side by side confirms the stripping neither causes nor worsens it — `/?pair_key=abc` is not excluded under either, because stripping the query yields `""`, which is no more present in the list than `"?pair_key=abc"` was. `{ignoreSearch: true}` on `cache.match` would fix the bloat if it ever matters. Recorded here only so a later reader does not misattribute it to the matcher change.
+
+Separately, error responses must never be cached. Unknown paths previously redirected, and the worker threw on redirects, so 404 bodies were unreachable by the cache by accident. Returning a real 404 removed that accident and made them cacheable — a cached 404 outlives the condition that produced it, so `fromNetwork` and `updateCache` both need an explicit `response.ok` guard. The guard must sit *after* `resolve(response)`, so error pages are still served to the user and only the cache write is suppressed.
 
 ### D5 — A shared `styles/pages.css`, not inlined CSS
 
