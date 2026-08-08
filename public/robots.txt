@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://snap-drop.net/sitemap.xml
+Sitemap: https://www.snap-drop.net/sitemap.xml

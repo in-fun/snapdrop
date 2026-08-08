@@ -19,10 +19,10 @@
     <meta name="author" content="lilac">
     <!-- The shell answers at `/`, `/index.html`, and - since serve-static gained
          `extensions: ['html']` - `/index`. Consolidate all three on the canonical root. -->
-    <link rel="canonical" href="https://snap-drop.net/">
+    <link rel="canonical" href="https://www.snap-drop.net/">
     <meta property="og:title" content="SnapDrop">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="https://snap-drop.net/">
+    <meta property="og:url" content="https://www.snap-drop.net/">
     <meta property="og:author" content="https://github.com/lilac">
     <meta name="twitter:author" content="@cnjdeng">
     <meta name="twitter:card" content="summary_large_image">
@@ -44,6 +44,14 @@
     <!-- Not deferred: placements reserve their dimensions before the fade-in sequence. -->
     <link rel="stylesheet" type="text/css" href="styles/placements.css">
     <link rel="manifest" href="manifest.json">
+    <!-- AdSense site verification. Must be static markup inside <head> on every page load:
+         Google's crawler looks for it here, and placements.js injects the same tag only when a
+         placement is enabled, which is never while both ship disabled. Loading the library is not
+         an ad request - no adsbygoogle.push() fires and no placement reserves space while
+         suppressed. Shipped only after /privacy went live, because it sets third-party cookies
+         that the policy has to disclose first. Last in <head> so it cannot delay the stylesheets;
+         `async` means it cannot delay first paint or hydration either. -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7669832766470834" crossorigin="anonymous"></script>
 </head>
 
 <body translate="no">
@@ -748,7 +756,7 @@
         <x-background></x-background>
         <section class="about mx-1">
             <p class="text-center">
-                Local file sharing <a href="https://snap-drop.net"><strong>in your web browser</strong></a>.
+                Local file sharing <a href="https://www.snap-drop.net"><strong>in your web browser</strong></a>.
                 <br>
                 Inspired by Apple's AirDrop.
                 <br>

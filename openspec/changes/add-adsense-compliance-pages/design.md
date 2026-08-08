@@ -45,7 +45,7 @@ At four documents, templating costs more than the duplication it removes. Hand-a
 
 `app.use(express.static(publicPathAbs, { extensions: ['html'] }))`. A request for `/privacy` finds no such file, appends `.html`, and serves `privacy.html` **directly with 200** — serve-static's documented behavior is to serve, not to redirect.
 
-Both `/privacy` and `/privacy.html` therefore return 200. Rather than redirect one to the other, each page declares `<link rel="canonical" href="https://snap-drop.net/privacy">`, which is the standard way to resolve duplicate URLs and costs one line per page.
+Both `/privacy` and `/privacy.html` therefore return 200. Rather than redirect one to the other, each page declares `<link rel="canonical" href="https://www.snap-drop.net/privacy">`, which is the standard way to resolve duplicate URLs and costs one line per page.
 
 *Why not redirect.* This is the load-bearing decision. The service worker throws on any redirected response, so redirecting `.html` → extensionless would break those URLs for every client with the service worker installed. `rel=canonical` achieves the same de-duplication with zero redirects.
 

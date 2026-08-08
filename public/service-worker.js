@@ -1,7 +1,7 @@
 // Fork-local shell revision on an upstream base. `-sd.N` avoids colliding with
 // upstream's eventual v1.12.0 and with v1.11.3, already claimed on feat/ad-banner.
 // Only contract is uniqueness; package.json tracks upstream release lineage.
-const cacheVersion = 'v1.11.2-sd.2';
+const cacheVersion = 'v1.11.2-sd.3';
 const cacheTitle = `pairdrop-cache-${cacheVersion}`;
 const relativePathsToCache = [
     './',

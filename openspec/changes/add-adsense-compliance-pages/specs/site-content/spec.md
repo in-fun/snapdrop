@@ -53,7 +53,7 @@ No content page URL SHALL issue a redirect under any circumstances. This deploym
 
 - **WHEN** `GET /privacy.html` is requested
 - **THEN** the response status is `200`, not `301` or `302`
-- **AND** the body declares `<link rel="canonical" href="https://snap-drop.net/privacy">`
+- **AND** the body declares `<link rel="canonical" href="https://www.snap-drop.net/privacy">`
 
 #### Scenario: Client with the service worker installed navigates to a page
 
