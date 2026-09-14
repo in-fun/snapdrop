@@ -49,6 +49,7 @@
         "webrtc": "if WebRTC is not available.",
         "site-about": "About",
         "site-how-it-works": "How it works",
+        "site-faq": "FAQ",
         "site-privacy": "Privacy",
         "site-terms": "Terms"
     },

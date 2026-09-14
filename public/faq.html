@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapDrop FAQ — Using and Troubleshooting File Transfers</title>
+    <meta name="description" content="Practical answers for using SnapDrop across devices, fixing discovery and transfer problems, handling downloads, and understanding privacy and security.">
+    <link rel="canonical" href="https://www.snap-drop.net/faq">
+    <link rel="icon" sizes="96x96" href="images/favicon-96x96.png">
+    <link rel="stylesheet" type="text/css" href="styles/pages.css">
+</head>
+
+<body>
+    <h1>SnapDrop questions and answers</h1>
+
+    <p class="updated">Technical content reviewed: 3 September 2026</p>
+
+    <p>
+        This guide is for the public SnapDrop instance at <code>snap-drop.net</code>. It explains
+        what to do when two devices cannot see each other, why a visible device may still fail to
+        connect, what happens to received files, and which limits come from the browser rather than
+        from SnapDrop.
+    </p>
+
+    <p>
+        For the protocol and server architecture, read <a href="how-it-works">how SnapDrop works</a>.
+        For the data-handling contract, read the <a href="privacy">privacy policy</a>.
+    </p>
+
+    <div class="contents">
+        <h2>On this page</h2>
+        <ul>
+            <li><a href="#getting-started">Getting started</a></li>
+            <li><a href="#files-and-downloads">Files and downloads</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+            <li><a href="#privacy-and-security">Privacy and security</a></li>
+        </ul>
+    </div>
+
+    <section aria-labelledby="getting-started">
+        <h2 id="getting-started">Getting started</h2>
+
+        <h3 id="what-do-i-need">What do I need to use SnapDrop?</h3>
+        <p>
+            You need two devices with this site open, JavaScript enabled, and an active network
+            connection. Current mainstream versions of Chrome, Edge, Firefox, and Safari normally
+            provide the WebSocket and WebRTC data-channel features SnapDrop uses. Older browsers and
+            embedded in-app browsers may not. Installing the site as an app is optional; pairing,
+            notifications, clipboard access, and mobile share-sheet integration also depend on what
+            the browser and operating system allow.
+        </p>
+        <p>
+            Keep both pages open while sending. An offline copy of the app can open from its cache,
+            but it cannot discover another device or transfer anything until it reconnects.
+        </p>
+
+        <h3 id="how-do-i-send">How do I send a file, link, or text?</h3>
+        <p>
+            Open <a href="/">SnapDrop</a> on both devices and wait for the other device's name to
+            appear. Select that device, choose one or more files, and approve the request on the
+            receiver. On a desktop you can also drag files onto a device. To send text or a link,
+            right-click the device on a desktop, or touch and hold it on a phone or tablet, then use
+            the message box.
+        </p>
+        <p>
+            Device names are convenient labels, not verified identities. Before sending something
+            private, confirm with the other person that you selected the device they can see on
+            their screen.
+        </p>
+
+        <h3 id="same-network">Do both devices have to be on the same Wi-Fi?</h3>
+        <p>
+            Not always. Devices that reach the site from the same apparent public IP address are
+            placed in the same local discovery room automatically, which is why the same Wi-Fi often
+            works with no setup. SnapDrop does not scan your local network. Guest Wi-Fi isolation,
+            a VPN, a proxy, different IPv6 routes, or a managed network can therefore stop two nearby
+            devices from appearing even when their Wi-Fi name looks identical.
+        </p>
+        <p>
+            For devices on different networks, pair devices you control or create a temporary public
+            room. Those features help the devices discover each other; the file itself still needs a
+            viable WebRTC route between the browsers.
+        </p>
+
+        <h3 id="pairing-versus-room">Should I pair devices or use a public room?</h3>
+        <p>
+            Pairing is for devices you expect to use together again. One device creates a single-use
+            six-digit key and QR code. Redeeming it gives both browsers a shared secret that is saved
+            in their local site data and used for discovery on later visits. Clearing site data,
+            using storage-restricted private browsing, or unpairing can remove that relationship.
+            Two tabs in the same browser cannot be paired with each other.
+        </p>
+        <p>
+            A public room is better for a temporary transfer with another person. It uses a
+            five-letter code, can contain several devices, and disappears from server memory after
+            the last participant leaves. Anyone who has the active code can join, so share it only
+            with the intended participants. Neither option makes a blocked WebRTC route work by
+            itself.
+        </p>
+
+        <h3 id="install-required">Do I need an app, account, or browser extension?</h3>
+        <p>
+            No. The transfer runs in the web page and there is no account. A supported browser may
+            offer to install SnapDrop as a progressive web app or expose it in the system share
+            sheet, but those are conveniences rather than requirements. If an embedded browser inside
+            another app behaves oddly, open the site in a full browser instead.
+        </p>
+    </section>
+
+    <section aria-labelledby="files-and-downloads">
+        <h2 id="files-and-downloads">Files and downloads</h2>
+
+        <h3 id="file-types">Which file types can I send? Can I send a folder?</h3>
+        <p>
+            The file picker does not restrict file types, and you can select multiple files. SnapDrop
+            does not implement folder selection, so make a ZIP or another archive first if you need
+            to preserve a folder structure. Sending several files causes the receiver to prepare a
+            ZIP in the browser in most desktop cases.
+        </p>
+
+        <h3 id="file-size">Is there a file-size limit?</h3>
+        <p>
+            SnapDrop has no server upload limit because files are not uploaded to its server, but
+            that does not make transfers unlimited. The receiving browser holds each completed file
+            in memory before saving it, and preparing several files as a ZIP needs additional memory.
+            Available memory, storage space, browser behavior, and device power therefore set the
+            practical ceiling.
+        </p>
+        <p>
+            This client rejects an incoming batch on iPhone or iPad when its combined size is 200 MiB
+            or more. Keep each iOS batch below that threshold, and use smaller batches on older or
+            memory-constrained devices. There is no single safe maximum for every other browser.
+        </p>
+
+        <h3 id="transfer-speed">What determines transfer speed?</h3>
+        <p>
+            Speed is determined by the path between the two browsers, the devices, and their network
+            conditions—not by an upload tier on this site. A local Wi-Fi route can be much faster
+            than a route across the Internet. Busy wireless networks, power-saving modes, VPNs, and
+            slow storage can all reduce throughput. Files in a batch are sent one after another.
+        </p>
+
+        <h3 id="where-files-go">Where does a received file go?</h3>
+        <p>
+            SnapDrop waits for the whole file to arrive, then asks the browser to download or share
+            it. One file is normally saved under its original filename; several files are normally
+            offered as an uncompressed ZIP. On supported Android and iOS browsers a Share button can
+            pass the received files to the system share sheet. The exact download directory,
+            permission prompt, and final save name are controlled by your browser and operating
+            system.
+        </p>
+        <p>
+            If the transfer says it completed but no file appears, return to the receive dialog and
+            choose <strong>Download</strong> or <strong>Download again</strong>. Also check whether
+            the browser blocked automatic downloads and whether the device has enough free storage.
+        </p>
+
+        <h3 id="metadata">Does SnapDrop preserve file metadata?</h3>
+        <p>
+            It preserves the file bytes and filename. It does not preserve every filesystem
+            attribute: for example, the received browser file is created with the current time rather
+            than the original modification time. The protocol checks the expected filename and byte
+            count, but it does not provide a user-visible cryptographic checksum. Compare a checksum
+            separately when exact archival verification matters.
+        </p>
+
+        <h3 id="resume">Can an interrupted transfer resume?</h3>
+        <p>
+            No. The live data channel uses reliable delivery and acknowledgements, but SnapDrop does
+            not save a durable checkpoint that another session can resume. Closing or reloading a
+            page, losing the route, or allowing the operating system to discard a tab tears down the
+            transfer. Reopen both pages and send the file again.
+        </p>
+    </section>
+
+    <section aria-labelledby="troubleshooting">
+        <h2 id="troubleshooting">Troubleshooting</h2>
+
+        <h3 id="device-not-visible">Why does the other device not appear?</h3>
+        <ol>
+            <li>Keep this site open and online on both devices, then wait a few seconds.</li>
+            <li>For automatic discovery, put both devices on the same non-guest Wi-Fi network.</li>
+            <li>Temporarily disable a VPN or proxy that gives the devices different apparent addresses.</li>
+            <li>Check whether the router or managed network isolates wireless clients from each other.</li>
+            <li>Use device pairing or a public room when the devices are on different networks.</li>
+        </ol>
+        <p>
+            On a large shared network, a device you do not recognize can occasionally appear because
+            several users share one public address. Do not send to it. The displayed name is not
+            proof of who owns the device.
+        </p>
+
+        <h3 id="transfer-will-not-connect">The device appears, but why will the transfer not start?</h3>
+        <p>
+            Discovery and file connectivity are separate. Seeing a device proves that both browsers
+            reached the signalling service; it does not prove that WebRTC found a usable path between
+            them. Corporate firewalls, restrictive address translation, VPN policies, carrier
+            networks, and blocked peer-to-peer traffic can prevent that path.
+        </p>
+        <p>
+            Try putting both devices on the same ordinary Wi-Fi network or personal hotspot, or try a
+            different network. This public deployment advertises a STUN server but no TURN relay and
+            has no WebSocket file-transfer fallback. STUN helps browsers discover and test possible
+            routes; it does not carry the file. If the browsers cannot establish a direct route, this
+            instance fails the transfer rather than uploading or relaying it through the server.
+        </p>
+
+        <h3 id="transfer-stops">Why did a transfer stop part-way through?</h3>
+        <p>
+            A device may have slept, changed networks, lost Wi-Fi, run short of memory, or had its
+            background page frozen or discarded. A brief connection disturbance is not guaranteed to
+            be fatal at the WebRTC layer, but this client does not restart ICE or resume a file after
+            it reports the peer disconnected. Keep both devices awake, leave both pages visible when
+            practical, and retry with a smaller batch or a more stable network.
+        </p>
+
+        <h3 id="mobile-limit">Why does an iPhone or iPad reject my selection?</h3>
+        <p>
+            To avoid exhausting browser memory, this client refuses an incoming iOS batch whose total
+            size is 200 MiB or more. Split the selection into batches below 200 MiB. A smaller batch
+            can still fail if the device is short of memory or storage, so reduce it further when
+            necessary.
+        </p>
+
+        <h3 id="background-transfer">Can I lock the screen or switch apps during a transfer?</h3>
+        <p>
+            Sometimes a transfer continues, but the web platform cannot guarantee it. Browsers and
+            operating systems may throttle, freeze, or discard background pages, and a screen wake
+            lock can be released. For the most reliable result, keep both pages in the foreground and
+            both devices awake until the completion message appears.
+        </p>
+    </section>
+
+    <section aria-labelledby="privacy-and-security">
+        <h2 id="privacy-and-security">Privacy and security</h2>
+
+        <h3 id="uploaded-or-stored">Are files uploaded to or stored by snap-drop.net?</h3>
+        <p>
+            No file bytes pass through this deployment's application server. With the current
+            production configuration, the browsers exchange files over a direct WebRTC data channel;
+            there is no TURN or WebSocket file relay and no file database. Both devices must be
+            online together because the service does not create a later download link. The
+            <a href="privacy">privacy policy</a> describes the signalling and infrastructure data
+            that is handled separately.
+        </p>
+
+        <h3 id="encryption">Are transfers encrypted?</h3>
+        <p>
+            WebRTC data channels are encrypted in transit with DTLS by the browsers. Encryption
+            protects the live transport, but it does not tell you who owns a device name. SnapDrop
+            has no account-backed identity and no independent, out-of-band verification of the other
+            browser. Confirm the recipient yourself, keep public room codes private, and enable
+            automatic acceptance only for a paired device you trust.
+        </p>
+
+        <h3 id="server-data">What can the signalling service see?</h3>
+        <p>
+            The service necessarily handles connection metadata used to introduce browsers: the
+            source IP address, browser-derived device information, a random peer identifier, room or
+            pairing identifiers, and WebRTC session and network-candidate messages. Its signalling
+            connection remains open for presence and handshakes while you use the page. In the
+            current production configuration, filenames, thumbnails, message text, and file bytes
+            stay on the peer data channel rather than being sent through the application server.
+        </p>
+
+        <h3 id="safe-sharing">What am I allowed to share?</h3>
+        <p>
+            Share only material you own or are authorized to distribute, and only with a recipient
+            who agreed to receive it. Do not use SnapDrop for unlawful material, malware, harassment,
+            or copyright infringement. SnapDrop neither hosts nor indexes a public catalogue of
+            files, and the operator cannot inspect peer-to-peer file contents; those architectural
+            limits do not change your responsibility for what you send. Read the full
+            <a href="terms">terms of use</a> before using the service.
+        </p>
+    </section>
+
+    <nav aria-label="Site">
+        <a href="/">SnapDrop</a>
+        <a href="about">About</a>
+        <a href="how-it-works">How it works</a>
+        <a href="privacy">Privacy</a>
+        <a href="terms">Terms</a>
+    </nav>
+
+    <footer>This page is available in English only.</footer>
+</body>
+
+</html>

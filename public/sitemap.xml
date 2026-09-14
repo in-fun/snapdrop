@@ -16,6 +16,11 @@
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>https://www.snap-drop.net/faq</loc>
+        <changefreq>yearly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
         <loc>https://www.snap-drop.net/privacy</loc>
         <changefreq>yearly</changefreq>
         <priority>0.5</priority>

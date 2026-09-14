@@ -14,7 +14,7 @@
 <body>
     <h1>Privacy policy</h1>
 
-    <p class="updated">Last updated: 7 August 2026</p>
+    <p class="updated">Last updated: 13 September 2026</p>
 
     <p>
         This policy covers <code>snap-drop.net</code>, operated by lilac. It describes this instance
@@ -27,13 +27,14 @@
     <p>
         Files you send never reach our server. They go directly from one device to the other,
         encrypted by your browser. We have no copy, no log of what you sent, and no way to recover
-        it. The server exists to introduce two devices to each other, and that introduction is the
-        only thing it handles. <a href="how-it-works">How it works</a> explains the mechanics.
+        it. The server handles device discovery and connection signalling while the page is open.
+        <a href="how-it-works">How it works</a> explains the mechanics.
     </p>
 
     <p>
-        This site does show advertising, which does involve third-party cookies. That part is set out
-        in full below.
+        The application's ad placements are currently disabled. The application page still loads
+        Google's AdSense library for site verification, which contacts Google even while those
+        placements are disabled. The third-party data handling is described below.
     </p>
 
     <h2>What the service handles</h2>
@@ -126,8 +127,12 @@
     <h2>Advertising</h2>
 
     <p>
-        This site uses Google AdSense to fund its running costs. When advertising is active, the
-        AdSense script loads on the application page and the cookies described below may be set.
+        This site is preparing to use Google AdSense to help fund its running costs. Its ad
+        placements are currently disabled, but the AdSense library loads on the application page
+        for site verification. Loading it sends a request to Google, including your IP address and
+        browser request metadata; third-party cookies or local storage may also be used. Disabling
+        the placements does not prevent that library request. The informational pages, including
+        this privacy policy, do not load the AdSense library.
     </p>
 
     <ul>
@@ -152,11 +157,10 @@
     </ul>
 
     <p>
-        Ad units are placed outside the transfer area and file data is never passed to them. We
-        should be precise rather than reassuring here: ad code is a third-party script running in the
-        same page as the application, so it has the access that any script in a page has. What we can
-        say concretely is that files are never uploaded, never written to a server, and never handed
-        to advertising code by the application.
+        The application does not pass file data to advertising code. However, the AdSense library
+        is a third-party script running in the same page as the application, so it has the access
+        that any script in a page has. The application sends your files over the peer connection
+        and does not upload them to a server or hand them to advertising code.
     </p>
 
     <p>
@@ -179,7 +183,7 @@
         Because we hold no persistent personal data and no accounts, there is generally nothing to
         export or delete on our side — anything relating to you lives in your own browser, and
         clearing site data removes it. If you have a question or a request about your data, write to
-        <a href="mailto:contact@snap-drop.net">contact@snap-drop.net</a>.
+        <!--email_off--><a href="mailto:contact@snap-drop.net">contact@snap-drop.net</a><!--/email_off-->.
     </p>
 
     <h2>Changes</h2>
@@ -193,6 +197,7 @@
         <a href="/">SnapDrop</a>
         <a href="about">About</a>
         <a href="how-it-works">How it works</a>
+        <a href="faq">FAQ</a>
         <a href="terms">Terms</a>
     </nav>
 

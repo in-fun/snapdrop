@@ -17,7 +17,8 @@
     <p>
         Most "send a file" services work by uploading your file to a server, giving you a link, and
         letting the other person download it. SnapDrop does not do that. Your file goes directly from
-        one device to the other, and the only thing our server ever handles is the introduction.
+        one device to the other. Our server handles discovery and the connection handshake, but not
+        the file payload.
     </p>
 
     <p>
@@ -71,15 +72,16 @@
         <dd>
             When you pick a device to send to, the two browsers negotiate: session descriptions
             describing what they support, and candidate network addresses to try. These messages go
-            through our server because there is no other channel yet. Once the browsers agree, they
-            connect directly and the server stops being involved.
+            through our server because there is no other channel yet. Once the browsers agree, file
+            data uses their direct connection. The signalling WebSocket stays open for presence and
+            later handshakes, but it does not carry the file bytes.
         </dd>
     </dl>
 
     <p>
-        The signalling server never receives file data. It is not a design goal that we enforce
-        carefully — it is structural. File bytes are written to a WebRTC data channel that the server
-        is not a party to, and there is no code path that sends them anywhere else.
+        This deployment's signalling server does not receive file data. File bytes are written to a
+        WebRTC data channel that the server is not a party to, and the optional WebSocket
+        file-transfer fallback in the underlying project is disabled here.
     </p>
 
     <h2>Finding a route between two devices</h2>
@@ -104,8 +106,28 @@
         <strong>This instance does not run a TURN server.</strong> If a direct connection cannot be
         established, the transfer fails rather than falling back to a relay. That is a deliberate
         trade-off: it means there is no configuration under which your file passes through
-        infrastructure we operate, at the cost of not working on every network. If a transfer will
-        not start, both devices being on the same Wi-Fi is the reliable fix.
+        infrastructure we operate, at the cost of not working on every network. Trying both devices
+        on the same ordinary Wi-Fi network or personal hotspot is the best first test, but it is not
+        a guarantee: guest isolation, VPNs, firewalls, and managed-network rules can still block a
+        peer connection.
+    </p>
+
+    <h2>When a connection fails</h2>
+
+    <p>
+        Discovery and transfer connectivity are separate stages. If a device never appears, first
+        check that both pages are open and online, then check whether a guest network, VPN, or proxy
+        is separating them. Pairing or a public room can solve discovery across different networks,
+        but neither creates a file relay.
+    </p>
+
+    <p>
+        If a device appears but the transfer never connects, signalling succeeded and WebRTC did not
+        find a usable route. Changing to a common Wi-Fi network, a personal hotspot, or another
+        network may help. Because this instance has no TURN or WebSocket file-transfer fallback, a
+        transfer fails when no direct route can be established. Interrupted transfers have no
+        durable checkpoint and must be started again. The <a href="faq#troubleshooting">FAQ has a
+        step-by-step troubleshooting checklist</a>.
     </p>
 
     <h2>Pairing devices</h2>
@@ -151,19 +173,24 @@
     <ul>
         <li>Your files are not uploaded anywhere and are not stored on any server.</li>
         <li>Both devices must be online at the same time — there is no mailbox to leave a file in.</li>
-        <li>There is no size limit imposed by us, because we are not paying to store anything.</li>
+        <li>
+            There is no server upload-size cap, but browser memory, storage, and device limits still
+            bound a transfer; this client also rejects iOS receive batches at or above 200 MiB.
+        </li>
         <li>Transfer speed is the speed of the path between the two devices, not of our server.</li>
         <li>We cannot recover a transfer that failed, because we never had a copy.</li>
     </ul>
 
     <p>
         What the server does record, and for how long, is set out in the
-        <a href="privacy">privacy policy</a>.
+        <a href="privacy">privacy policy</a>. Practical usage and download questions are covered in
+        the <a href="faq">FAQ</a>.
     </p>
 
     <nav>
         <a href="/">SnapDrop</a>
         <a href="about">About</a>
+        <a href="faq">FAQ</a>
         <a href="privacy">Privacy</a>
         <a href="terms">Terms</a>
     </nav>
