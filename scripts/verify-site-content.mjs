@@ -274,8 +274,8 @@ for (const alias of ['faq', 'faq.html']) {
 verify(!(precachePaths || []).includes('sitemap.xml'),
     'service worker: sitemap.xml must stay out of relativePathsToCache');
 const cacheVersionDeclarations = [...serviceWorker.matchAll(/\bconst\s+cacheVersion\s*=\s*(["'])([^"']+)\1/g)];
-verify(cacheVersionDeclarations.length === 1 && cacheVersionDeclarations[0][2] === 'v1.11.2-sd.4',
-    'service worker: expected the single integration cache bump to v1.11.2-sd.4');
+verify(cacheVersionDeclarations.length === 1 && cacheVersionDeclarations[0][2] === 'v1.11.2-sd.5',
+    'service worker: expected the single integration cache bump to v1.11.2-sd.5');
 
 const placements = read('public/scripts/placements.js');
 const adConfigMatch = placements.match(/\bconst\s+AD_CONFIG\s*=\s*\{([\s\S]*?)\n\};/);

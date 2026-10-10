@@ -55,6 +55,32 @@
 </head>
 
 <body translate="no">
+    <!-- Adsterra Native Banner - parked, do not ship yet.
+         Desktop-only by design: Adsterra's mobile template stacks up to three
+         widgets in a single column (`oneColumnInMobile`) and covers the screen.
+         The tag is injected only above the 600px breakpoint, which matches the
+         `#native-banner { display: none !important }` media query in
+         styles/placements.css - keep the two in sync when shipping this.
+
+         Shipped in a release of its own, after the Social Bar above has run for
+         a while, so the revenue of each ad type is separately attributable.
+         To ship: uncomment this block and the #native-banner block in
+         styles/placements.css (the drag and print rules also need
+         #native-banner added back), and bump cacheVersion. -->
+    <!-- <div id="native-banner">
+        <script>
+            if (!window.matchMedia('(max-width: 600px)').matches) {
+                var tag = document.createElement('script');
+                tag.async = true;
+                tag.setAttribute('data-cfasync', 'false');
+                tag.src = 'https://bauval.org/21/c63f3c52b2e95320fd160abb06e38168';
+                // Original Adsterra snippet order: tag immediately before its
+                // container element.
+                document.currentScript.after(tag);
+            }
+        </script>
+        <div id="container-c63f3c52b2e95320fd160abb06e38168"></div>
+    </div> -->
     <header class="row-reverse wrap opacity-0">
         <a href="#about" class="icon-button" data-i18n-key="header.about" data-i18n-attrs="title aria-label">
             <svg class="icon">
@@ -902,6 +928,8 @@
         <source src="sounds/blop.mp3" type="audio/mpeg">
         <source src="sounds/blop.ogg" type="audio/ogg">
     </audio>
+    <!-- Social Bar Ad -->
+    <script data-cfasync="false" src="https://bauval.org/14/1ced5612c22bcf1827c540edfccf2c34"></script>
     <!-- no script -->
     <noscript>
         <x-noscript class="full center column">

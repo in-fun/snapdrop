@@ -111,6 +111,31 @@ body.ad-drag-active .ad-placement {
     }
 }
 
+/* Adsterra Native Banner - parked, do not ship yet. Desktop only; the loader
+   and the uncomment instructions live in index.html. Ships in its own release
+   after the Social Bar, so each ad type's revenue is separately attributable.
+
+   #native-banner {
+       // Body is a flex column, so the banner must not shrink to make room for
+       // header and #center; centered and capped at the banner's own width.
+       flex: 0 0 auto;
+       align-self: center;
+       width: 100%;
+       max-width: 728px;
+   }
+
+   @media (max-width: 600px) {
+       #native-banner {
+           display: none !important;
+       }
+   }
+
+   Also restore when shipping:
+   - `body.ad-drag-active #native-banner { pointer-events: none; }`, so a dropped
+     file passes through the banner's cross-origin iframe;
+   - `#native-banner` in the `@media print` rule below.
+*/
+
 /* Those conditions carry no media type, so they also match `print`. Nobody wants
  * an ad on a printed page. */
 @media print {
