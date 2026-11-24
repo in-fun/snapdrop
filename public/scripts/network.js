@@ -1041,7 +1041,7 @@ class PeersManager {
         return true;
     }
 
-    _createOrRefreshPeer(isCaller, peerId, roomType, roomId, rtcSupported) {
+    _createOrRefreshPeer(isCaller, peerId, roomType, roomId, rtcSupported, os) {
         if (this._peerExists(peerId)) {
             this._refreshPeer(peerId, roomType, roomId);
             return;
@@ -1057,15 +1057,17 @@ class PeersManager {
             console.warn("Websocket fallback is not activated on this instance.\n" +
                 "Activate WebRTC in this browser or ask the admin of this instance to activate the websocket fallback.")
         }
+
+        if (this._peerExists(peerId)) this.peers[peerId].isIOS = os === 'iOS';
     }
 
     _onPeerJoined(message) {
-        this._createOrRefreshPeer(false, message.peer.id, message.roomType, message.roomId, message.peer.rtcSupported);
+        this._createOrRefreshPeer(false, message.peer.id, message.roomType, message.roomId, message.peer.rtcSupported, message.peer.name?.os);
     }
 
     _onPeers(message) {
         message.peers.forEach(peer => {
-            this._createOrRefreshPeer(true, peer.id, message.roomType, message.roomId, peer.rtcSupported);
+            this._createOrRefreshPeer(true, peer.id, message.roomType, message.roomId, peer.rtcSupported, peer.name?.os);
         })
     }
 
@@ -1083,6 +1085,12 @@ class PeersManager {
 
     async _onFilesSelected(message) {
         let files = mime.addMissingMimeTypesToFiles([...message.files]);
+        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+        if (this.peers[message.to].isIOS && totalSize >= 200*1024*1024) {
+            // iOS Safari can only put 400MB at once to memory. Do not even send the request.
+            Events.fire('notify-user', Localization.getTranslation("notifications.ios-memory-limit"));
+            return;
+        }
         await this.peers[message.to].requestFileTransfer(files);
     }
 
